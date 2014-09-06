@@ -1,12 +1,13 @@
 ﻿  main.cpp
-c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(80): warning C4244: 'argument' : conversion from 'const int' to 'float', possible loss of data
-c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(92): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(93): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(101): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(115): warning C4244: 'argument' : conversion from 'const float' to 'int', possible loss of data
-c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(117): warning C4244: 'argument' : conversion from 'const float' to 'int', possible loss of data
-c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(118): warning C4244: 'argument' : conversion from 'const float' to 'int', possible loss of data
-c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(121): warning C4244: 'argument' : conversion from 'const float' to 'int', possible loss of data
+c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(127): warning C4244: 'argument' : conversion from 'const int' to 'float', possible loss of data
+c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(139): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(140): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(141): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(151): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(165): warning C4244: 'argument' : conversion from 'const float' to 'int', possible loss of data
+c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(167): warning C4244: 'argument' : conversion from 'const float' to 'int', possible loss of data
+c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(168): warning C4244: 'argument' : conversion from 'const float' to 'int', possible loss of data
+c:\users\jeff\documents\github\spaceinvaderstutorial\source\main.cpp(171): warning C4244: 'argument' : conversion from 'const float' to 'int', possible loss of data
   AIE_1st_Year_Framework_d.lib(SOIL.obj) : MSIL .netmodule or module compiled with /GL found; restarting link with /LTCG; add /LTCG to the link command line to improve linker performance
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification
 main.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification

@@ -10,8 +10,16 @@ const int playerCannonWidth = 64;
 const int playerCannonHeight = 32;
 const float playerCannonYPos = 100.0f;
 float playerCannonXPos = screenWidth *0.5f;
+const float playerMoveSpeed = 2.0f;
 
 const float lineYPos = 45.0f;
+
+const int COLS = 9;
+const int ROWS = 5;
+const float alienStartPosX = 50.0f;
+const float alienStartPosY = 600.0f;
+const float alienXPadding = 5.0f;
+const float alienYPadding = 5.0f;
 
 //magic strings
 char* player1ScoreText = "SCORE < 1 >";
@@ -21,7 +29,6 @@ char* creditText = "CREDIT";
 char* highScoreText = "HIGH SCORE";
 char* insertCoinsText = "INSERT COINS";
 
-
 char* player1Score = "00000";
 char* player2Score = "00000";
 char* highScore = "00000";
@@ -29,6 +36,7 @@ char* credit = "99";
 char* playerLives = "3";
 
 const char* invadersFont = "./fonts/invaders.fnt";
+
 
 using namespace std;
 
@@ -39,12 +47,20 @@ enum GAMESTATES
 		END
 };
 
+GAMESTATES mCurrentState = MAIN_MENU;
+
+unsigned int mAlienShips[COLS * ROWS];
+
 //enter key code is IsKeyDown(257)
-void handleInput(const unsigned int playerCannon)
+void handleGameplayInput(const unsigned int playerCannon)
 {
+	if (IsKeyDown(256)) //esc key code
+	{
+		mCurrentState = MAIN_MENU;
+	}
 	if (IsKeyDown('A'))
 	{
-		playerCannonXPos -= 2.0f;
+		playerCannonXPos -= playerMoveSpeed;
 		if (playerCannonXPos < 32.0f)
 		{
 			playerCannonXPos = 32.0f;
@@ -52,7 +68,7 @@ void handleInput(const unsigned int playerCannon)
 	}
 	else if (IsKeyDown('S'))
 	{
-		playerCannonXPos += 2.0f;
+		playerCannonXPos += playerMoveSpeed;
 		if (playerCannonXPos > screenWidth - playerCannonWidth / 2)
 		{
 			playerCannonXPos = screenWidth - playerCannonWidth / 2;
@@ -61,20 +77,51 @@ void handleInput(const unsigned int playerCannon)
 	MoveSprite(playerCannon, playerCannonXPos, playerCannonYPos);
 }
 
+void loadEnemies()
+{
+	//float enemyXPos = screenWidth * 0.2f;
+	//float enemyYPos = screenHeight * 0.7f;
+	for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
+	{
+		mAlienShips[i] = CreateSprite("./images/invaders/invaders_1_00.png", playerCannonWidth, playerCannonHeight, true);
+		//MoveSprite(mAlienShips[i], enemyXPos, enemyYPos);
+		//enemyXPos += 0.12 * screenWidth;
+	}
+}
+
+void drawEnemies()
+{
+	float xPos;
+	float yPos = alienStartPosY;
+	int index = 0;
+	for (int row = 0; row < ROWS; ++row)
+	{
+		xPos = alienStartPosX; //need to initialize here due to resetting value after each row
+		for (int col = 0; col < COLS; ++col, ++index)
+		{
+			unsigned int alien = mAlienShips[index];
+			MoveSprite(alien, xPos, yPos);
+			DrawSprite(alien);
+			xPos += playerCannonWidth + alienXPadding;
+			//++index; //manually incrementing index count
+		}
+		yPos -= playerCannonHeight + alienYPadding; //need to subtract because drawing from top of screen down
+	}
+}
 
 int main(int argcx, char* argv[])
 {
 	Initialise(screenWidth, screenHeight, false, "Space Invaders Clone");
 	SetBackgroundColour(SColour(0x00, 0x00, 0x00, 0xFF));
 	AddFont(invadersFont);
-	
-	GAMESTATES currentState = MAIN_MENU;
 
 	unsigned int playerCannon = CreateSprite("./images/cannon.png", playerCannonWidth, playerCannonHeight, true);
 
 	//create marquee sprite
 	unsigned int arcadeMarquee = CreateSprite("./images/Space-Invaders-Marquee.png", screenWidth, screenHeight, false);
 
+	//load enemies array
+	loadEnemies();
 
 	MoveSprite(playerCannon, playerCannonXPos, playerCannonYPos);
 	MoveSprite(arcadeMarquee,0,screenHeight);
@@ -84,17 +131,20 @@ int main(int argcx, char* argv[])
 		ClearScreen();
 		SetFont(invadersFont);
 
-		switch (currentState)
+		switch (mCurrentState)
 		{
 		case MAIN_MENU:
 			
 			DrawSprite(arcadeMarquee);
 			DrawString(insertCoinsText, screenWidth * 0.37f, screenHeight * 0.5f);
 			DrawString(creditText, screenWidth * 0.25f, screenHeight * 0.4f);
+			DrawString(credit, screenWidth * 0.5f, screenHeight * 0.4f);
 			//DrawString("foo", screenWidth / 2, screenHeight / 2);
+
+
 			if (IsKeyDown(257))	//windows code for enter key
 			{
-				currentState = GAMEPLAY;
+				mCurrentState = GAMEPLAY;
 			}
 			break;
 		case GAMEPLAY:
@@ -120,9 +170,10 @@ int main(int argcx, char* argv[])
 
 			DrawLine(0, lineYPos, screenWidth, lineYPos, SColour(0x00, 0xFF, 0x00, 0xFF));
 
-			handleInput(playerCannon);
+			handleGameplayInput(playerCannon);
 
 			DrawSprite(playerCannon);
+			drawEnemies();
 			break;
 		case END:
 			;
