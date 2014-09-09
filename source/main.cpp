@@ -10,7 +10,6 @@ const int playerCannonWidth = 64;
 const int playerCannonHeight = 32;
 const float playerCannonYPos = 100.0f;
 float playerCannonXPos = screenWidth *0.5f;
-const float playerMoveSpeed = 500.0f;
 
 const float lineYPos = 45.0f;
 
@@ -50,7 +49,7 @@ enum GAMESTATES
 	END
 };
 
-enum Alien_DIRECTION
+enum ALIEN_DIRECTION
 {
 	LEFT,
 	RIGHT,
@@ -64,13 +63,13 @@ void HandleGameplayInput();
 void LoadEnemies();
 
 //Move enemies
-void MoveEnemies();
+void MoveEnemies(float a_timeDelta);
 
 //draw enemies from array to screen
 void DrawEnemies();
 
 //swap direction enum right to left and vice versa
-Alien_DIRECTION SwapDirection(const Alien_DIRECTION a_direction);
+ALIEN_DIRECTION SwapDirection(const ALIEN_DIRECTION a_direction);
 
 //main menu game state code
 void UpdateMainMenu(unsigned int arcadeMarquee);
@@ -89,6 +88,7 @@ struct PlayerCannon
 	unsigned int spriteID;
 	float width;
 	float height;
+	const float speed = 500.0f;
 
 	void SetSize(float a_width, float a_height)
 	{
@@ -121,11 +121,11 @@ struct PlayerCannon
 		rightMovementExtreme = a_rightExtreme;
 	}
 
-	void move(float a_timeStep, float a_speed)
+	void move(float a_timeStep)
 	{
 		if (IsKeyDown(moveLeftKey))
 		{
-			x -= a_timeStep * a_speed;
+			x -= a_timeStep * speed;
 			if (x < (leftMovementExtreme + width / 2))
 			{
 				x = (leftMovementExtreme + width / 2);
@@ -133,7 +133,7 @@ struct PlayerCannon
 		}
 		if (IsKeyDown(moveRightKey))
 		{
-			x+= a_timeStep * a_speed;
+			x+= a_timeStep * speed;
 			if (x >(rightMovementExtreme - width / 2))
 			{
 				x = (rightMovementExtreme - width / 2);
@@ -149,6 +149,14 @@ struct PlayerCannon
 struct Alien
 {
 	unsigned int spriteID;
+
+	Alien()
+	{
+		setMovementExtremes(0, screenWidth);
+		SetSize(playerCannonWidth, playerCannonHeight);
+		SetPosition(playerCannonXPos, playerCannonYPos);
+	}
+
 	float width;
 	float height;
 	void SetSize(float a_width, float a_height)
@@ -176,10 +184,13 @@ struct Alien
 
 	bool move(float a_deltaTime, int a_direction)
 	{
+		float move = 100.0f;
 		if (a_direction == LEFT)
 		{
 			//move left 
 			x -= a_deltaTime * AlienMoveSpeed;
+			//x -= move;
+			MoveSprite(spriteID, x, y);
 			if (x < leftMovementExtreme + width/2)
 			{
 				x = leftMovementExtreme + width/2;
@@ -191,6 +202,8 @@ struct Alien
 		{
 			//move right
 			x += a_deltaTime * AlienMoveSpeed;
+			//x += move;
+			MoveSprite(spriteID, x, y);
 			if (x > rightMovementExtreme - width/2)
 			{
 				x = rightMovementExtreme - width/2;
@@ -202,10 +215,17 @@ struct Alien
 		{
 			//move towards planet
 			y -= height;
+			//y -= move;
 			MoveSprite(spriteID, x, y);
+			if (y < 0 + playerCannonHeight/2)
+			{
+				y = 0 + playerCannonHeight/2;
+				MoveSprite(spriteID, x, y);
+			}
 			return false;
 		}
 		return false;
+		
 	}
 };
 
@@ -215,7 +235,7 @@ GAMESTATES mCurrentState = MAIN_MENU;
 
 //unsigned int mAlienShips[COLS * ROWS];
 Alien mAlienShips[COLS * ROWS];
-Alien_DIRECTION alienMoveDirection = RIGHT;
+ALIEN_DIRECTION alienMoveDirection = RIGHT;
 
 
 int main(int argcx, char* argv[])
@@ -276,12 +296,7 @@ void LoadEnemies()
 	*/
 	for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
 	{
-		Alien e;
-		
-		e.SetSize(playerCannonWidth, playerCannonHeight);
-		e.spriteID = CreateSprite("./images/invaders/invaders_1_00.png", e.width,e.height, true);
-		e.setMovementExtremes(0, screenWidth);
-		mAlienShips[i] = e;
+		mAlienShips[i].spriteID = CreateSprite("./images/invaders/invaders_1_00.png", mAlienShips[i].width, mAlienShips[i].height, true);
 	}
 }
 
@@ -292,38 +307,36 @@ void MoveEnemies(float a_timeDelta)
 
 	for (int i = 0, count = ROWS * COLS; i < count; ++i)
 	{
-		//Alien alien = mAlienShips[i];
 		if (mAlienShips[i].move(a_timeDelta, alienMoveDirection))
 		{
 			alienMoveDirection = SwapDirection(alienMoveDirection);
 			moveDown = true;
 		}
 		DrawSprite(mAlienShips[i].spriteID);
-
 	}
 
 	if (moveDown)
 	{
 		for (int i = 0, count = ROWS * COLS; i < count; ++i)
 		{
-			//Alien alien = mAlienShips[i];
 			mAlienShips[i].move(a_timeDelta, DOWN);
 			DrawSprite(mAlienShips[i].spriteID);
 		}
+		moveDown = false;
 	}
 
 }
 
-Alien_DIRECTION SwapDirection(const Alien_DIRECTION a_direction)
+ALIEN_DIRECTION SwapDirection(const ALIEN_DIRECTION a_direction)
 {
-	Alien_DIRECTION result;
+	ALIEN_DIRECTION result;
 	if (a_direction == LEFT)
 	{
 		return RIGHT;
 	}
 	else
 	{
-		return RIGHT;
+		return LEFT;
 	}
 }
 
@@ -389,7 +402,7 @@ void UpdateGameState()
 	{
 		mCurrentState = MAIN_MENU;
 	}
-	player.move(timeDelta, playerMoveSpeed);
+	player.move(timeDelta);
 	DrawSprite(player.spriteID);
 	
 	MoveEnemies(timeDelta);
