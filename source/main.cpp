@@ -14,12 +14,15 @@ const float playerMoveSpeed = 500.0f;
 
 const float lineYPos = 45.0f;
 
-const int COLS = 9;
-const int ROWS = 5;
+//const int COLS = 9;
+//const int ROWS = 5;
+const int COLS = 2;
+const int ROWS = 2;
 const float alienStartPosX = 50.0f;
 const float alienStartPosY = 600.0f;
 const float alienXPadding = 5.0f;
 const float alienYPadding = 5.0f;
+const float AlienMoveSpeed = 100.0f;
 
 //magic strings
 const char* player1ScoreText = "SCORE < 1 >";
@@ -40,14 +43,34 @@ const char* invadersFont = "./fonts/invaders.fnt";
 
 using namespace std;
 
+enum GAMESTATES
+{
+	MAIN_MENU,
+	GAMEPLAY,
+	END
+};
+
+enum Alien_DIRECTION
+{
+	LEFT,
+	RIGHT,
+	DOWN
+};
+
 //Input handling during gameplay state
 void HandleGameplayInput();
 
-//Load array with enemy sprite ID
+//Load array with Alien sprite ID
 void LoadEnemies();
+
+//Move enemies
+void MoveEnemies();
 
 //draw enemies from array to screen
 void DrawEnemies();
+
+//swap direction enum right to left and vice versa
+Alien_DIRECTION SwapDirection(const Alien_DIRECTION a_direction);
 
 //main menu game state code
 void UpdateMainMenu(unsigned int arcadeMarquee);
@@ -59,19 +82,7 @@ void DrawUI();
 void UpdateGameState();
 
 
-enum GAMESTATES
-{
-	MAIN_MENU,
-	GAMEPLAY,
-	END
-};
 
-enum ENEMY_DIRECTION
-{
-	LEFT,
-	RIGHT,
-	DOWN
-};
 
 struct PlayerCannon
 {
@@ -135,7 +146,7 @@ struct PlayerCannon
 
 };
 
-struct Enemy
+struct Alien
 {
 	unsigned int spriteID;
 	float width;
@@ -168,25 +179,33 @@ struct Enemy
 		if (a_direction == LEFT)
 		{
 			//move left 
+			x -= a_deltaTime * AlienMoveSpeed;
 			if (x < leftMovementExtreme + width/2)
 			{
 				x = leftMovementExtreme + width/2;
+				MoveSprite(spriteID, x, y);
 				return true;
 			}
 		}
 		if (a_direction == RIGHT)
 		{
 			//move right
+			x += a_deltaTime * AlienMoveSpeed;
 			if (x > rightMovementExtreme - width/2)
 			{
 				x = rightMovementExtreme - width/2;
+				MoveSprite(spriteID, x, y);
 				return true;
 			}
 		}
 		if (a_direction == DOWN)
 		{
 			//move towards planet
+			y -= height;
+			MoveSprite(spriteID, x, y);
+			return false;
 		}
+		return false;
 	}
 };
 
@@ -194,8 +213,9 @@ PlayerCannon player;
 
 GAMESTATES mCurrentState = MAIN_MENU;
 
-unsigned int mAlienShips[COLS * ROWS];
-
+//unsigned int mAlienShips[COLS * ROWS];
+Alien mAlienShips[COLS * ROWS];
+Alien_DIRECTION alienMoveDirection = RIGHT;
 
 
 int main(int argcx, char* argv[])
@@ -216,7 +236,7 @@ int main(int argcx, char* argv[])
 
 	//load enemies array
 	LoadEnemies();
-
+	DrawEnemies();
 
 	MoveSprite(arcadeMarquee, 0, screenHeight);
 
@@ -249,9 +269,61 @@ int main(int argcx, char* argv[])
 
 void LoadEnemies()
 {
-	for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
+	/*for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
 	{
 		mAlienShips[i] = CreateSprite("./images/invaders/invaders_1_00.png", playerCannonWidth, playerCannonHeight, true);
+	}
+	*/
+	for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
+	{
+		Alien e;
+		
+		e.SetSize(playerCannonWidth, playerCannonHeight);
+		e.spriteID = CreateSprite("./images/invaders/invaders_1_00.png", e.width,e.height, true);
+		e.setMovementExtremes(0, screenWidth);
+		mAlienShips[i] = e;
+	}
+}
+
+void MoveEnemies(float a_timeDelta)
+{
+	bool moveDown = false;
+	
+
+	for (int i = 0, count = ROWS * COLS; i < count; ++i)
+	{
+		//Alien alien = mAlienShips[i];
+		if (mAlienShips[i].move(a_timeDelta, alienMoveDirection))
+		{
+			alienMoveDirection = SwapDirection(alienMoveDirection);
+			moveDown = true;
+		}
+		DrawSprite(mAlienShips[i].spriteID);
+
+	}
+
+	if (moveDown)
+	{
+		for (int i = 0, count = ROWS * COLS; i < count; ++i)
+		{
+			//Alien alien = mAlienShips[i];
+			mAlienShips[i].move(a_timeDelta, DOWN);
+			DrawSprite(mAlienShips[i].spriteID);
+		}
+	}
+
+}
+
+Alien_DIRECTION SwapDirection(const Alien_DIRECTION a_direction)
+{
+	Alien_DIRECTION result;
+	if (a_direction == LEFT)
+	{
+		return RIGHT;
+	}
+	else
+	{
+		return RIGHT;
 	}
 }
 
@@ -265,11 +337,11 @@ void DrawEnemies()
 		xPos = alienStartPosX; //need to initialize here due to resetting value after each row
 		for (int col = 0; col < COLS; ++col, ++index)
 		{
-			unsigned int alien = mAlienShips[index];
-			MoveSprite(alien, xPos, yPos);
-			DrawSprite(alien);
-			xPos += playerCannonWidth + alienXPadding;
-			//++index; //manually incrementing index count
+			//Alien alien = mAlienShips[index];
+			mAlienShips[index].SetPosition(xPos, yPos);
+			MoveSprite(mAlienShips[index].spriteID, mAlienShips[index].x, mAlienShips[index].y);
+			DrawSprite(mAlienShips[index].spriteID);
+			xPos += mAlienShips[index].width + alienXPadding;
 		}
 		yPos -= playerCannonHeight + alienYPadding; //need to subtract because drawing from top of screen down
 	}
@@ -310,13 +382,16 @@ void DrawUI()
 
 void UpdateGameState()
 {
+	float timeDelta = GetDeltaTime();
+
 	DrawUI();
 	if (IsKeyDown(256)) //esc key code
 	{
 		mCurrentState = MAIN_MENU;
 	}
-	player.move(GetDeltaTime(), playerMoveSpeed);
+	player.move(timeDelta, playerMoveSpeed);
 	DrawSprite(player.spriteID);
-	DrawEnemies();
+	
+	MoveEnemies(timeDelta);
 }
 
