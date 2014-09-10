@@ -13,10 +13,10 @@ float playerCannonXPos = screenWidth *0.5f;
 
 const float lineYPos = 45.0f;
 
-//const int COLS = 9;
-//const int ROWS = 5;
-const int COLS = 2;
-const int ROWS = 2;
+const int COLS = 9;
+const int ROWS = 5;
+//const int COLS = 2;
+//const int ROWS = 2;
 const float alienStartPosX = 50.0f;
 const float alienStartPosY = 600.0f;
 const float alienXPadding = 5.0f;
