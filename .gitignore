@@ -3,7 +3,8 @@
 
 # User-specific files
 *.suo
-*.user
+#removed to make framework work
+#*.user
 *.sln.docstates
 
 # Build results
@@ -181,3 +182,6 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+Pong.sdf
+*.sdf
+*.tlog
