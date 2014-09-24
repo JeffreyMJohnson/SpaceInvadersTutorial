@@ -1,5 +1,6 @@
 #include "AIE.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "stdlib.h"
 #include <iostream>
 
@@ -14,10 +15,10 @@ float playerCannonXPos = screenWidth *0.5f;
 
 const float lineYPos = 45.0f;
 
-const int COLS = 9;
-const int ROWS = 5;
-//const int COLS = 2;
-//const int ROWS = 2;
+//const int COLS = 9;
+//const int ROWS = 5;
+const int COLS = 2;
+const int ROWS = 2;
 const float alienStartPosX = 50.0f;
 const float alienStartPosY = 600.0f;
 const float alienXPadding = 5.0f;
@@ -50,12 +51,12 @@ enum GAMESTATES
 	END
 };
 
-enum ALIEN_DIRECTION
-{
-	LEFT,
-	RIGHT,
-	DOWN
-};
+//enum ALIEN_DIRECTION
+//{
+//	LEFT,
+//	RIGHT,
+//	DOWN
+//};
 
 //Input handling during gameplay state
 void HandleGameplayInput();
@@ -141,95 +142,95 @@ void UpdateGameState();
 //
 //};
 
-struct Alien
-{
-	unsigned int spriteID;
-
-	Alien()
-	{
-		setMovementExtremes(0, screenWidth);
-		SetSize(playerCannonWidth, playerCannonHeight);
-		SetPosition(playerCannonXPos, playerCannonYPos);
-	}
-
-	float width;
-	float height;
-	void SetSize(float a_width, float a_height)
-	{
-		width = a_width;
-		height = a_height;
-	}
-
-	float x;
-	float y;
-	void SetPosition(float a_x, float a_y)
-	{
-		x = a_x;
-		y = a_y;
-	}
-
-	unsigned int leftMovementExtreme;
-	unsigned int rightMovementExtreme;
-
-	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme)
-	{
-		leftMovementExtreme = a_leftExtreme;
-		rightMovementExtreme = a_rightExtreme;
-	}
-
-	bool move(float a_deltaTime, int a_direction)
-	{
-		float move = 100.0f;
-		if (a_direction == LEFT)
-		{
-			//move left 
-			x -= a_deltaTime * AlienMoveSpeed;
-			//x -= move;
-			MoveSprite(spriteID, x, y);
-			if (x < leftMovementExtreme + width/2)
-			{
-				x = leftMovementExtreme + width/2;
-				MoveSprite(spriteID, x, y);
-				return true;
-			}
-		}
-		if (a_direction == RIGHT)
-		{
-			//move right
-			x += a_deltaTime * AlienMoveSpeed;
-			//x += move;
-			MoveSprite(spriteID, x, y);
-			if (x > rightMovementExtreme - width/2)
-			{
-				x = rightMovementExtreme - width/2;
-				MoveSprite(spriteID, x, y);
-				return true;
-			}
-		}
-		if (a_direction == DOWN)
-		{
-			//move towards planet
-			y -= height;
-			//y -= move;
-			MoveSprite(spriteID, x, y);
-			if (y < 0 + playerCannonHeight/2)
-			{
-				y = 0 + playerCannonHeight/2;
-				MoveSprite(spriteID, x, y);
-			}
-			return false;
-		}
-		return false;
-		
-	}
-};
+//struct Alien
+//{
+//	unsigned int spriteID;
+//
+//	Alien()
+//	{
+//		setMovementExtremes(0, screenWidth);
+//		SetSize(playerCannonWidth, playerCannonHeight);
+//		SetPosition(playerCannonXPos, playerCannonYPos);
+//	}
+//
+//	float width;
+//	float height;
+//	void SetSize(float a_width, float a_height)
+//	{
+//		width = a_width;
+//		height = a_height;
+//	}
+//
+//	float x;
+//	float y;
+//	void SetPosition(float a_x, float a_y)
+//	{
+//		x = a_x;
+//		y = a_y;
+//	}
+//
+//	unsigned int leftMovementExtreme;
+//	unsigned int rightMovementExtreme;
+//
+//	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme)
+//	{
+//		leftMovementExtreme = a_leftExtreme;
+//		rightMovementExtreme = a_rightExtreme;
+//	}
+//
+//	bool move(float a_deltaTime, int a_direction)
+//	{
+//		float move = 100.0f;
+//		if (a_direction == LEFT)
+//		{
+//			//move left 
+//			x -= a_deltaTime * AlienMoveSpeed;
+//			//x -= move;
+//			MoveSprite(spriteID, x, y);
+//			if (x < leftMovementExtreme + width/2)
+//			{
+//				x = leftMovementExtreme + width/2;
+//				MoveSprite(spriteID, x, y);
+//				return true;
+//			}
+//		}
+//		if (a_direction == RIGHT)
+//		{
+//			//move right
+//			x += a_deltaTime * AlienMoveSpeed;
+//			//x += move;
+//			MoveSprite(spriteID, x, y);
+//			if (x > rightMovementExtreme - width/2)
+//			{
+//				x = rightMovementExtreme - width/2;
+//				MoveSprite(spriteID, x, y);
+//				return true;
+//			}
+//		}
+//		if (a_direction == DOWN)
+//		{
+//			//move towards planet
+//			y -= height;
+//			//y -= move;
+//			MoveSprite(spriteID, x, y);
+//			if (y < 0 + playerCannonHeight/2)
+//			{
+//				y = 0 + playerCannonHeight/2;
+//				MoveSprite(spriteID, x, y);
+//			}
+//			return false;
+//		}
+//		return false;
+//		
+//	}
+//};
 
 Player player;
 
 GAMESTATES mCurrentState = MAIN_MENU;
 
 //unsigned int mAlienShips[COLS * ROWS];
-Alien mAlienShips[COLS * ROWS];
+Enemy mAlienShips[COLS * ROWS];
 ALIEN_DIRECTION alienMoveDirection = RIGHT;
 
 
@@ -242,10 +243,10 @@ int main(int argcx, char* argv[])
 	player.SetSize(playerCannonWidth, playerCannonHeight);
 	player.SetPosition(playerCannonXPos, playerCannonYPos);
 	player.SetMovementKeys('A', 'S');
-	player.setMovementExtremes(0, screenWidth);
+	player.SetMovementExtremes(0, screenWidth);
 	player.SetSpriteID(CreateSprite("./images/cannon.png", player.GetWidth(), player.GetHeight(), true));
 	MoveSprite(player.GetSpriteID(), player.GetX(), player.GetY());
-	
+
 	//create marquee sprite
 	unsigned int arcadeMarquee = CreateSprite("./images/Space-Invaders-Marquee.png", screenWidth, screenHeight, false);
 
@@ -286,19 +287,30 @@ void LoadEnemies()
 {
 	/*for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
 	{
-		mAlienShips[i] = CreateSprite("./images/invaders/invaders_1_00.png", playerCannonWidth, playerCannonHeight, true);
+	mAlienShips[i] = CreateSprite("./images/invaders/invaders_1_00.png", playerCannonWidth, playerCannonHeight, true);
 	}
 	*/
+	//		setMovementExtremes(0, screenWidth);
+	//		SetSize(playerCannonWidth, playerCannonHeight);
+	//		SetPosition(playerCannonXPos, playerCannonYPos);
+
+
 	for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
 	{
-		mAlienShips[i].spriteID = CreateSprite("./images/invaders/invaders_1_00.png", mAlienShips[i].width, mAlienShips[i].height, true);
+		Enemy enemy = Enemy();
+		enemy.SetSpriteID(CreateSprite("./images/invaders/invaders_1_00.png", enemy.GetWidth(), enemy.GetHeight(), true));
+		enemy.setMovementExtremes(0, screenWidth);
+		enemy.SetSize(playerCannonWidth, playerCannonHeight);
+		enemy.SetPosition(playerCannonXPos, playerCannonYPos);
+		enemy.SetSpeed(AlienMoveSpeed);
+		mAlienShips[i] = enemy;
 	}
 }
 
 void MoveEnemies(float a_timeDelta)
 {
 	bool moveDown = false;
-	
+
 
 	for (int i = 0, count = ROWS * COLS; i < count; ++i)
 	{
@@ -307,7 +319,7 @@ void MoveEnemies(float a_timeDelta)
 			alienMoveDirection = SwapDirection(alienMoveDirection);
 			moveDown = true;
 		}
-		DrawSprite(mAlienShips[i].spriteID);
+		DrawSprite(mAlienShips[i].GetSpriteID());
 	}
 
 	if (moveDown)
@@ -315,7 +327,7 @@ void MoveEnemies(float a_timeDelta)
 		for (int i = 0, count = ROWS * COLS; i < count; ++i)
 		{
 			mAlienShips[i].move(a_timeDelta, DOWN);
-			DrawSprite(mAlienShips[i].spriteID);
+			DrawSprite(mAlienShips[i].GetSpriteID());
 		}
 		moveDown = false;
 	}
@@ -345,11 +357,12 @@ void DrawEnemies()
 		xPos = alienStartPosX; //need to initialize here due to resetting value after each row
 		for (int col = 0; col < COLS; ++col, ++index)
 		{
-			//Alien alien = mAlienShips[index];
-			mAlienShips[index].SetPosition(xPos, yPos);
-			MoveSprite(mAlienShips[index].spriteID, mAlienShips[index].x, mAlienShips[index].y);
-			DrawSprite(mAlienShips[index].spriteID);
-			xPos += mAlienShips[index].width + alienXPadding;
+			Enemy enemy = mAlienShips[index];
+
+			enemy.SetPosition(xPos, yPos);
+			MoveSprite(enemy.GetSpriteID(), enemy.GetX(), enemy.GetY());
+			DrawSprite(enemy.GetSpriteID());
+			xPos += enemy.GetWidth() + alienXPadding;
 		}
 		yPos -= playerCannonHeight + alienYPadding; //need to subtract because drawing from top of screen down
 	}
@@ -399,7 +412,7 @@ void UpdateGameState()
 	}
 	player.Move(timeDelta);
 	DrawSprite(player.GetSpriteID());
-	
+
 	MoveEnemies(timeDelta);
 }
 
