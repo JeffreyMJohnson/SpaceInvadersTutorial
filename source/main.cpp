@@ -1,4 +1,5 @@
 #include "AIE.h"
+#include "Player.h"
 #include "stdlib.h"
 #include <iostream>
 
@@ -83,68 +84,62 @@ void UpdateGameState();
 
 
 
-struct PlayerCannon
-{
-	unsigned int spriteID;
-	float width;
-	float height;
-	const float speed = 500.0f;
-
-	void SetSize(float a_width, float a_height)
-	{
-		width = a_width;
-		height = a_height;
-	}
-
-	float x;
-	float y;
-
-	void SetPosition(float a_x, float a_y)
-	{
-		x = a_x;
-		y = a_y;
-	}
-
-	unsigned int moveLeftKey;
-	unsigned int moveRightKey;
-	void SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight)
-	{
-		moveLeftKey = a_moveLeft;
-		moveRightKey = a_moveRight;
-	}
-
-	unsigned int leftMovementExtreme;
-	unsigned int rightMovementExtreme;
-	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme)
-	{
-		leftMovementExtreme = a_leftExtreme;
-		rightMovementExtreme = a_rightExtreme;
-	}
-
-	void move(float a_timeStep)
-	{
-		if (IsKeyDown(moveLeftKey))
-		{
-			x -= a_timeStep * speed;
-			if (x < (leftMovementExtreme + width / 2))
-			{
-				x = (leftMovementExtreme + width / 2);
-			}
-		}
-		if (IsKeyDown(moveRightKey))
-		{
-			x+= a_timeStep * speed;
-			if (x >(rightMovementExtreme - width / 2))
-			{
-				x = (rightMovementExtreme - width / 2);
-			}
-		}
-		MoveSprite(spriteID, x, y);
-	}
-
-	
-
-};
+//struct PlayerCannon
+//{
+//	
+//
+//	void SetSize(float a_width, float a_height)
+//	{
+//		width = a_width;
+//		height = a_height;
+//	}
+//
+//	
+//
+//	void SetPosition(float a_x, float a_y)
+//	{
+//		x = a_x;
+//		y = a_y;
+//	}
+//
+//	
+//	void SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight)
+//	{
+//		moveLeftKey = a_moveLeft;
+//		moveRightKey = a_moveRight;
+//	}
+//
+//	
+//	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme)
+//	{
+//		leftMovementExtreme = a_leftExtreme;
+//		rightMovementExtreme = a_rightExtreme;
+//	}
+//
+//	void Move(float a_timeStep)
+//	{
+//		if (IsKeyDown(moveLeftKey))
+//		{
+//			x -= a_timeStep * speed;
+//			if (x < (leftMovementExtreme + width / 2))
+//			{
+//				x = (leftMovementExtreme + width / 2);
+//			}
+//		}
+//		if (IsKeyDown(moveRightKey))
+//		{
+//			x+= a_timeStep * speed;
+//			if (x >(rightMovementExtreme - width / 2))
+//			{
+//				x = (rightMovementExtreme - width / 2);
+//			}
+//		}
+//		MoveSprite(spriteID, x, y);
+//	}
+//
+//	
+//
+//};
 
 struct Alien
 {
@@ -229,7 +224,7 @@ struct Alien
 	}
 };
 
-PlayerCannon player;
+Player player;
 
 GAMESTATES mCurrentState = MAIN_MENU;
 
@@ -248,8 +243,8 @@ int main(int argcx, char* argv[])
 	player.SetPosition(playerCannonXPos, playerCannonYPos);
 	player.SetMovementKeys('A', 'S');
 	player.setMovementExtremes(0, screenWidth);
-	player.spriteID = CreateSprite("./images/cannon.png", player.width, player.height, true);
-	MoveSprite(player.spriteID, player.x, player.y);
+	player.SetSpriteID(CreateSprite("./images/cannon.png", player.GetWidth(), player.GetHeight(), true));
+	MoveSprite(player.GetSpriteID(), player.GetX(), player.GetY());
 	
 	//create marquee sprite
 	unsigned int arcadeMarquee = CreateSprite("./images/Space-Invaders-Marquee.png", screenWidth, screenHeight, false);
@@ -402,8 +397,8 @@ void UpdateGameState()
 	{
 		mCurrentState = MAIN_MENU;
 	}
-	player.move(timeDelta);
-	DrawSprite(player.spriteID);
+	player.Move(timeDelta);
+	DrawSprite(player.GetSpriteID());
 	
 	MoveEnemies(timeDelta);
 }
