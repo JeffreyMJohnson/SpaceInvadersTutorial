@@ -4,6 +4,8 @@
 #include "stdlib.h"
 #include <iostream>
 
+using namespace std;
+
 //magic numbers
 const int screenWidth = 672;
 const int screenHeight = 780;
@@ -43,9 +45,6 @@ char* playerLives = "3";
 
 const char* invadersFont = "./fonts/invaders.fnt";
 
-
-using namespace std;
-
 enum GAMESTATES
 {
 	MAIN_MENU,
@@ -53,8 +52,6 @@ enum GAMESTATES
 	END
 };
 
-//Input handling during gameplay state
-void GameplayHandleInput();
 
 //Load array with Alien sprite ID
 void EnemiesLoad();
@@ -74,146 +71,6 @@ void GameplayUIDraw();
 //GameState code
 void GameplayUpdate();
 
-//struct PlayerCannon
-//{
-//	
-//
-//	void SetSize(float a_width, float a_height)
-//	{
-//		width = a_width;
-//		height = a_height;
-//	}
-//
-//	
-//
-//	void SetPosition(float a_x, float a_y)
-//	{
-//		x = a_x;
-//		y = a_y;
-//	}
-//
-//	
-//	void SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight)
-//	{
-//		moveLeftKey = a_moveLeft;
-//		moveRightKey = a_moveRight;
-//	}
-//
-//	
-//	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme)
-//	{
-//		leftMovementExtreme = a_leftExtreme;
-//		rightMovementExtreme = a_rightExtreme;
-//	}
-//
-//	void Move(float a_timeStep)
-//	{
-//		if (IsKeyDown(moveLeftKey))
-//		{
-//			x -= a_timeStep * speed;
-//			if (x < (leftMovementExtreme + width / 2))
-//			{
-//				x = (leftMovementExtreme + width / 2);
-//			}
-//		}
-//		if (IsKeyDown(moveRightKey))
-//		{
-//			x+= a_timeStep * speed;
-//			if (x >(rightMovementExtreme - width / 2))
-//			{
-//				x = (rightMovementExtreme - width / 2);
-//			}
-//		}
-//		MoveSprite(spriteID, x, y);
-//	}
-//
-//	
-//
-//};
-
-//struct Alien
-//{
-//	unsigned int spriteID;
-//
-//	Alien()
-//	{
-//		setMovementExtremes(0, screenWidth);
-//		SetSize(playerCannonWidth, playerCannonHeight);
-//		SetPosition(playerCannonXPos, playerCannonYPos);
-//	}
-//
-//	float width;
-//	float height;
-//	void SetSize(float a_width, float a_height)
-//	{
-//		width = a_width;
-//		height = a_height;
-//	}
-//
-//	float x;
-//	float y;
-//	void SetPosition(float a_x, float a_y)
-//	{
-//		x = a_x;
-//		y = a_y;
-//	}
-//
-//	unsigned int leftMovementExtreme;
-//	unsigned int rightMovementExtreme;
-//
-//	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme)
-//	{
-//		leftMovementExtreme = a_leftExtreme;
-//		rightMovementExtreme = a_rightExtreme;
-//	}
-//
-//	bool move(float a_deltaTime, int a_direction)
-//	{
-//		float move = 100.0f;
-//		if (a_direction == LEFT)
-//		{
-//			//move left 
-//			x -= a_deltaTime * AlienMoveSpeed;
-//			//x -= move;
-//			MoveSprite(spriteID, x, y);
-//			if (x < leftMovementExtreme + width/2)
-//			{
-//				x = leftMovementExtreme + width/2;
-//				MoveSprite(spriteID, x, y);
-//				return true;
-//			}
-//		}
-//		if (a_direction == RIGHT)
-//		{
-//			//move right
-//			x += a_deltaTime * AlienMoveSpeed;
-//			//x += move;
-//			MoveSprite(spriteID, x, y);
-//			if (x > rightMovementExtreme - width/2)
-//			{
-//				x = rightMovementExtreme - width/2;
-//				MoveSprite(spriteID, x, y);
-//				return true;
-//			}
-//		}
-//		if (a_direction == DOWN)
-//		{
-//			//move towards planet
-//			y -= height;
-//			//y -= move;
-//			MoveSprite(spriteID, x, y);
-//			if (y < 0 + playerCannonHeight/2)
-//			{
-//				y = 0 + playerCannonHeight/2;
-//				MoveSprite(spriteID, x, y);
-//			}
-//			return false;
-//		}
-//		return false;
-//		
-//	}
-//};
-
 Player player;
 
 Enemy mEnemies[COLS * ROWS];
@@ -226,14 +83,16 @@ int main(int argcx, char* argv[])
 	//flag to quit game gracefully
 	bool quitGame = false;
 
+	//init framework and window
 	Initialise(screenWidth, screenHeight, false, "Space Invaders Clone");
 	SetBackgroundColour(SColour(0x00, 0x00, 0x00, 0xFF));
 	AddFont(invadersFont);
 
+	//init player
 	player.SetSize(playerCannonWidth, playerCannonHeight);
 	player.SetPosition(playerCannonXPos, playerCannonYPos);
 	player.SetMovementKeys('A', 'S');
-	player.SetMovementExtremes(playerCannonWidth/2, screenWidth - (playerCannonWidth/2));
+	player.SetMovementExtremes(playerCannonWidth / 2, screenWidth - (playerCannonWidth / 2));
 	player.SetSpriteID(CreateSprite("./images/cannon.png", player.GetWidth(), player.GetHeight(), true));
 	MoveSprite(player.GetSpriteID(), player.GetX(), player.GetY());
 
@@ -246,9 +105,6 @@ int main(int argcx, char* argv[])
 	EnemiesInitialDraw();
 
 	MoveSprite(arcadeMarquee, 0, screenHeight);
-
-	//DEBUG::
-	mCurrentState = GAMEPLAY;
 
 	do
 	{
@@ -278,19 +134,9 @@ int main(int argcx, char* argv[])
 
 void EnemiesLoad()
 {
-	/*for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
-	{
-	mAlienShips[i] = CreateSprite("./images/invaders/invaders_1_00.png", playerCannonWidth, playerCannonHeight, true);
-	}
-	*/
-	//		setMovementExtremes(0, screenWidth);
-	//		SetSize(playerCannonWidth, playerCannonHeight);
-	//		SetPosition(playerCannonXPos, playerCannonYPos);
-
-
 	for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
 	{
-		mEnemies[i].setMovementExtremes(playerCannonWidth/2, screenWidth - (playerCannonWidth/2));
+		mEnemies[i].setMovementExtremes(playerCannonWidth / 2, screenWidth - (playerCannonWidth / 2));
 		mEnemies[i].SetSize(playerCannonWidth, playerCannonHeight);
 		mEnemies[i].SetPosition(playerCannonXPos, playerCannonYPos);
 		mEnemies[i].SetSpeedX(ENEMY_X_SPEED);
@@ -311,43 +157,7 @@ void EnemiesMove(float a_timeDelta)
 		mEnemies[i].Draw();
 	}
 
-	//bool moveDown = false;
-
-
-	//for (int i = 0, count = ROWS * COLS; i < count; ++i)
-	//{
-	//	if (mAlienShips[i].move(a_timeDelta, alienMoveDirection))
-	//	{
-	//		alienMoveDirection = SwapDirection(alienMoveDirection);
-	//		moveDown = true;
-	//	}
-	//	DrawSprite(mAlienShips[i].GetSpriteID());
-	//}
-
-	//if (moveDown)
-	//{
-	//	for (int i = 0, count = ROWS * COLS; i < count; ++i)
-	//	{
-	//		mAlienShips[i].move(a_timeDelta, DOWN);
-	//		DrawSprite(mAlienShips[i].GetSpriteID());
-	//	}
-	//	moveDown = false;
-	//}
-
 }
-
-//ALIEN_DIRECTION SwapDirection(const ALIEN_DIRECTION a_direction)
-//{
-//	ALIEN_DIRECTION result;
-//	if (a_direction == LEFT)
-//	{
-//		return RIGHT;
-//	}
-//	else
-//	{
-//		return LEFT;
-//	}
-//}
 
 /*
 Draw enemies to screen in initial grid position. This is done by setting the first enemy to a constant x,y value and computing
@@ -387,7 +197,7 @@ void MenuUpdate(unsigned int arcadeMarquee)
 	{
 		mCurrentState = GAMEPLAY;
 	}
-	else if (IsKeyDown(256)) //code for 'esc' key
+	else if (IsKeyDown('Q')) 
 	{
 		mCurrentState = END;
 	}
@@ -418,21 +228,15 @@ void GameplayUpdate()
 	float timeDelta = GetDeltaTime();
 
 	GameplayUIDraw();
+
+
+	player.Move(timeDelta);
+	EnemiesMove(timeDelta);
+
+	//DEBUG: THIS IS FOR DEBUG, REMOVE FOR RELEASE
 	if (IsKeyDown(256)) //esc key code
 	{
 		mCurrentState = MAIN_MENU;
 	}
-
-	player.Move(timeDelta);
-	//DrawSprite(player.GetSpriteID());
-
-	EnemiesMove(timeDelta);
-
-}
-
-//Input handling during gameplay state
-void GameplayHandleInput()
-{
-	
 }
 
