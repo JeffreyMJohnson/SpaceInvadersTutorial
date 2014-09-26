@@ -2,6 +2,12 @@
 
 Player::Player()
 {
+	width = 64;
+	height = 32;
+	//start position
+	x = 50.0f;
+	y = 600.0f;
+
 }
 
 void Player::SetSize(float a_width, float a_height)
@@ -28,9 +34,15 @@ void Player::SetMovementExtremes(unsigned int a_leftExtreme, unsigned int a_righ
 	rightMovementExtreme = a_rightExtreme;
 }
 
+
+/*
+Move the player using formula speedX * a_timeStep param with speed being controlled by user input.
+params:
+a_timeStep - a time delta since last frame
+*/
 void Player::Move(float a_timeStep)
 {
-	if (IsKeyDown(moveLeftKey))
+	/*if (IsKeyDown(moveLeftKey))
 	{
 		x -= a_timeStep * speed;
 		if (x < (leftMovementExtreme + width / 2))
@@ -45,9 +57,17 @@ void Player::Move(float a_timeStep)
 		{
 			x = (rightMovementExtreme - width / 2);
 		}
-	}
+	}*/
+	HandleUI();
+	x += speed * a_timeStep;
+	HandleCollisions();
 	MoveSprite(spriteID, x, y);
+	DrawSprite(spriteID);
 }
+
+
+
+//Setters / getters
 
 void Player::SetSpriteID(unsigned int a_ID)
 {
@@ -68,6 +88,7 @@ float Player::GetWidth()
 {
 	return width;
 }
+
 
 void Player::SetHeight(float a_height)
 {
@@ -151,4 +172,39 @@ unsigned int Player::GetRightMovementExtreme()
 
 Player::~Player()
 {
+}
+
+/*
+Set the speed according to user input from left/right move keys
+*/
+void Player::HandleUI()
+{
+	if (IsKeyDown(moveLeftKey))
+	{
+		speed = SPEED_X * -1;
+	}
+	else if (IsKeyDown(moveRightKey))
+	{
+		speed = SPEED_X;
+	}
+	else
+	{
+		speed = 0;
+	}
+}
+
+/*
+Handle collisions with the right extreme (wall) and left extreme (wall) by stopping player
+from going further than max.
+*/
+void Player::HandleCollisions()
+{
+	if (x < leftMovementExtreme)
+	{
+		x = leftMovementExtreme;
+	}
+	if (x > rightMovementExtreme)
+	{
+		x = rightMovementExtreme;
+	}
 }

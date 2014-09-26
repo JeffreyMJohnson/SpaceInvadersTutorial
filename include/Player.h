@@ -16,7 +16,15 @@ public:
 	void SetPosition(float a_x, float a_y);
 	void SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight);
 	void SetMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);
+
+	/*
+	Move the player using formula speedX * a_timeStep param.
+	params:
+	a_timeStep - a time delta since last frame
+	*/
 	void Move(float a_timeStep);
+
+	
 
 
 	//standard setters/getters
@@ -53,6 +61,7 @@ public:
 	~Player();
 	
 private:
+	const float SPEED_X = 500.0f;
 	unsigned int spriteID;
 	float width;
 	float height;
@@ -64,6 +73,16 @@ unsigned int moveLeftKey;
 unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
 
+	/*
+	Set the speed according to user input from left/right move keys
+	*/
+	void HandleUI();
+
+	/*
+	Handle collisions with the right extreme (wall) and left extreme (wall) by stopping player
+	from going further than max.
+	*/
+	void HandleCollisions();
 };
 
 

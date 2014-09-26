@@ -15,15 +15,17 @@ float playerCannonXPos = screenWidth *0.5f;
 
 const float lineYPos = 45.0f;
 
-//const int COLS = 9;
-//const int ROWS = 5;
-const int COLS = 2;
-const int ROWS = 2;
-const float alienStartPosX = 50.0f;
-const float alienStartPosY = 600.0f;
+//enemy magic numbers
+const float ENEMY_Y_SPEED = -100.0f;
+const float ENEMY_X_SPEED = 100.0f;
+
+const int COLS = 9;
+const int ROWS = 5;
+const float ENEMY_START_POSITION_X = 50.0f;
+const float ENEMY_START_POSITION_Y = 600.0f;
 const float alienXPadding = 5.0f;
 const float alienYPadding = 5.0f;
-const float AlienMoveSpeed = 100.0f;
+//const float AlienMoveSpeed = 100.0f;
 
 //magic strings
 const char* player1ScoreText = "SCORE < 1 >";
@@ -51,39 +53,26 @@ enum GAMESTATES
 	END
 };
 
-//enum ALIEN_DIRECTION
-//{
-//	LEFT,
-//	RIGHT,
-//	DOWN
-//};
-
 //Input handling during gameplay state
-void HandleGameplayInput();
+void GameplayHandleInput();
 
 //Load array with Alien sprite ID
-void LoadEnemies();
+void EnemiesLoad();
 
 //Move enemies
-void MoveEnemies(float a_timeDelta);
+void EnemiesMove(float a_timeDelta);
 
 //draw enemies from array to screen
-void DrawEnemies();
-
-//swap direction enum right to left and vice versa
-ALIEN_DIRECTION SwapDirection(const ALIEN_DIRECTION a_direction);
+void EnemiesInitialDraw();
 
 //main menu game state code
-void UpdateMainMenu(unsigned int arcadeMarquee);
+void MenuUpdate(unsigned int arcadeMarquee);
 
 //Draw UI for gamestate on screen
-void DrawUI();
+void GameplayUIDraw();
 
 //GameState code
-void UpdateGameState();
-
-
-
+void GameplayUpdate();
 
 //struct PlayerCannon
 //{
@@ -227,15 +216,16 @@ void UpdateGameState();
 
 Player player;
 
-GAMESTATES mCurrentState = MAIN_MENU;
+Enemy mEnemies[COLS * ROWS];
 
-//unsigned int mAlienShips[COLS * ROWS];
-Enemy mAlienShips[COLS * ROWS];
-ALIEN_DIRECTION alienMoveDirection = RIGHT;
+GAMESTATES mCurrentState = MAIN_MENU;
 
 
 int main(int argcx, char* argv[])
 {
+	//flag to quit game gracefully
+	bool quitGame = false;
+
 	Initialise(screenWidth, screenHeight, false, "Space Invaders Clone");
 	SetBackgroundColour(SColour(0x00, 0x00, 0x00, 0xFF));
 	AddFont(invadersFont);
@@ -243,7 +233,7 @@ int main(int argcx, char* argv[])
 	player.SetSize(playerCannonWidth, playerCannonHeight);
 	player.SetPosition(playerCannonXPos, playerCannonYPos);
 	player.SetMovementKeys('A', 'S');
-	player.SetMovementExtremes(0, screenWidth);
+	player.SetMovementExtremes(playerCannonWidth/2, screenWidth - (playerCannonWidth/2));
 	player.SetSpriteID(CreateSprite("./images/cannon.png", player.GetWidth(), player.GetHeight(), true));
 	MoveSprite(player.GetSpriteID(), player.GetX(), player.GetY());
 
@@ -251,10 +241,14 @@ int main(int argcx, char* argv[])
 	unsigned int arcadeMarquee = CreateSprite("./images/Space-Invaders-Marquee.png", screenWidth, screenHeight, false);
 
 	//load enemies array
-	LoadEnemies();
-	DrawEnemies();
+	EnemiesLoad();
+
+	EnemiesInitialDraw();
 
 	MoveSprite(arcadeMarquee, 0, screenHeight);
+
+	//DEBUG::
+	mCurrentState = GAMEPLAY;
 
 	do
 	{
@@ -264,26 +258,25 @@ int main(int argcx, char* argv[])
 		switch (mCurrentState)
 		{
 		case MAIN_MENU:
-			UpdateMainMenu(arcadeMarquee);
-
-
+			MenuUpdate(arcadeMarquee);
 			break;
 		case GAMEPLAY:
-			UpdateGameState();
+			GameplayUpdate();
 			break;
 		case END:
-			;
+			quitGame = true;
+			break;
 		}
 
 
-	} while (!FrameworkUpdate());
+	} while (!FrameworkUpdate() && !quitGame);
 
 	Shutdown();
-
+	//system("pause");
 	return 0;
 }
 
-void LoadEnemies()
+void EnemiesLoad()
 {
 	/*for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
 	{
@@ -297,78 +290,93 @@ void LoadEnemies()
 
 	for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
 	{
-		Enemy enemy = Enemy();
-		enemy.SetSpriteID(CreateSprite("./images/invaders/invaders_1_00.png", enemy.GetWidth(), enemy.GetHeight(), true));
-		enemy.setMovementExtremes(0, screenWidth);
-		enemy.SetSize(playerCannonWidth, playerCannonHeight);
-		enemy.SetPosition(playerCannonXPos, playerCannonYPos);
-		enemy.SetSpeed(AlienMoveSpeed);
-		mAlienShips[i] = enemy;
+		mEnemies[i].setMovementExtremes(playerCannonWidth/2, screenWidth - (playerCannonWidth/2));
+		mEnemies[i].SetSize(playerCannonWidth, playerCannonHeight);
+		mEnemies[i].SetPosition(playerCannonXPos, playerCannonYPos);
+		mEnemies[i].SetSpeedX(ENEMY_X_SPEED);
+		//mEnemies[i].SetSpeedY(0); //init to 0 so enemies don't move down
+		mEnemies[i].SetSpriteID(CreateSprite("./images/invaders/invaders_1_00.png", mEnemies[i].GetWidth(), mEnemies[i].GetHeight(), true));
 	}
 }
 
-void MoveEnemies(float a_timeDelta)
+/*
+Call Move() and Draw() on each sprite
+*/
+void EnemiesMove(float a_timeDelta)
 {
-	bool moveDown = false;
-
-
-	for (int i = 0, count = ROWS * COLS; i < count; ++i)
+	float deltaTime = GetDeltaTime();
+	for (int i = 0; i < ROWS * COLS; i++)
 	{
-		if (mAlienShips[i].move(a_timeDelta, alienMoveDirection))
-		{
-			alienMoveDirection = SwapDirection(alienMoveDirection);
-			moveDown = true;
-		}
-		DrawSprite(mAlienShips[i].GetSpriteID());
+		mEnemies[i].Move(deltaTime);
+		mEnemies[i].Draw();
 	}
 
-	if (moveDown)
-	{
-		for (int i = 0, count = ROWS * COLS; i < count; ++i)
-		{
-			mAlienShips[i].move(a_timeDelta, DOWN);
-			DrawSprite(mAlienShips[i].GetSpriteID());
-		}
-		moveDown = false;
-	}
+	//bool moveDown = false;
+
+
+	//for (int i = 0, count = ROWS * COLS; i < count; ++i)
+	//{
+	//	if (mAlienShips[i].move(a_timeDelta, alienMoveDirection))
+	//	{
+	//		alienMoveDirection = SwapDirection(alienMoveDirection);
+	//		moveDown = true;
+	//	}
+	//	DrawSprite(mAlienShips[i].GetSpriteID());
+	//}
+
+	//if (moveDown)
+	//{
+	//	for (int i = 0, count = ROWS * COLS; i < count; ++i)
+	//	{
+	//		mAlienShips[i].move(a_timeDelta, DOWN);
+	//		DrawSprite(mAlienShips[i].GetSpriteID());
+	//	}
+	//	moveDown = false;
+	//}
 
 }
 
-ALIEN_DIRECTION SwapDirection(const ALIEN_DIRECTION a_direction)
-{
-	ALIEN_DIRECTION result;
-	if (a_direction == LEFT)
-	{
-		return RIGHT;
-	}
-	else
-	{
-		return LEFT;
-	}
-}
+//ALIEN_DIRECTION SwapDirection(const ALIEN_DIRECTION a_direction)
+//{
+//	ALIEN_DIRECTION result;
+//	if (a_direction == LEFT)
+//	{
+//		return RIGHT;
+//	}
+//	else
+//	{
+//		return LEFT;
+//	}
+//}
 
-void DrawEnemies()
+/*
+Draw enemies to screen in initial grid position. This is done by setting the first enemy to a constant x,y value and computing
+the rest off of the position of the previous by adding a padding value for the x and y positions
+*/
+void EnemiesInitialDraw()
 {
 	float xPos;
-	float yPos = alienStartPosY;
+	float yPos = ENEMY_START_POSITION_Y;
+	//need a separate index variable due to using nested loop to follow col, row pattern
 	int index = 0;
+
 	for (int row = 0; row < ROWS; ++row)
 	{
-		xPos = alienStartPosX; //need to initialize here due to resetting value after each row
+		xPos = ENEMY_START_POSITION_X; //need to initialize here due to resetting value after each row
 		for (int col = 0; col < COLS; ++col, ++index)
 		{
-			Enemy enemy = mAlienShips[index];
+			//Enemy enemy = mEnemies[index];
 
-			enemy.SetPosition(xPos, yPos);
-			MoveSprite(enemy.GetSpriteID(), enemy.GetX(), enemy.GetY());
-			DrawSprite(enemy.GetSpriteID());
-			xPos += enemy.GetWidth() + alienXPadding;
+			mEnemies[index].SetPosition(xPos, yPos);
+			MoveSprite(mEnemies[index].GetSpriteID(), mEnemies[index].GetX(), mEnemies[index].GetY());
+			DrawSprite(mEnemies[index].GetSpriteID());
+			xPos += mEnemies[index].GetWidth() + alienXPadding;
 		}
-		yPos -= playerCannonHeight + alienYPadding; //need to subtract because drawing from top of screen down
+		yPos -= mEnemies[index].GetHeight() + alienYPadding; //need to subtract because drawing from top of screen down
 	}
 }
 
-void UpdateMainMenu(unsigned int arcadeMarquee)
+void MenuUpdate(unsigned int arcadeMarquee)
 {
 	DrawSprite(arcadeMarquee);
 	DrawString(insertCoinsText, screenWidth * 0.37f, screenHeight * 0.5f);
@@ -379,9 +387,13 @@ void UpdateMainMenu(unsigned int arcadeMarquee)
 	{
 		mCurrentState = GAMEPLAY;
 	}
+	else if (IsKeyDown(256)) //code for 'esc' key
+	{
+		mCurrentState = END;
+	}
 }
 
-void DrawUI()
+void GameplayUIDraw()
 {
 	DrawString(player1ScoreText, screenWidth * 0.025f, screenHeight - 2);
 	DrawString(highScoreText, (screenWidth / 2) - 90, screenHeight - 2);
@@ -401,18 +413,26 @@ void DrawUI()
 	DrawLine(0, lineYPos, screenWidth, lineYPos, SColour(0x00, 0xFF, 0x00, 0xFF));
 }
 
-void UpdateGameState()
+void GameplayUpdate()
 {
 	float timeDelta = GetDeltaTime();
 
-	DrawUI();
+	GameplayUIDraw();
 	if (IsKeyDown(256)) //esc key code
 	{
 		mCurrentState = MAIN_MENU;
 	}
-	player.Move(timeDelta);
-	DrawSprite(player.GetSpriteID());
 
-	MoveEnemies(timeDelta);
+	player.Move(timeDelta);
+	//DrawSprite(player.GetSpriteID());
+
+	EnemiesMove(timeDelta);
+
+}
+
+//Input handling during gameplay state
+void GameplayHandleInput()
+{
+	
 }
 

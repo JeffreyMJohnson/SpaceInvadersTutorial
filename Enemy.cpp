@@ -25,52 +25,91 @@ void Enemy::SetPosition(float a_x, float a_y)
 	y = a_y;
 }
 
-bool Enemy::move(float a_deltaTime, int a_direction)
+//move the enemy 
+void Enemy::Move(float a_deltaTime)
 {
-	float move = 100.0f;
-	if (a_direction == LEFT)
-	{
-		//move left 
-		x -= a_deltaTime * speed;
-		//x -= move;
-		MoveSprite(spriteID, x, y);
-		if (x < leftMovementExtreme + width / 2)
-		{
-			x = leftMovementExtreme + width / 2;
-			MoveSprite(spriteID, x, y);
-			return true;
-		}
-	}
-	if (a_direction == RIGHT)
-	{
-		//move right
-		x += a_deltaTime * speed;
-		//x += move;
-		MoveSprite(spriteID, x, y);
-		if (x > rightMovementExtreme - width / 2)
-		{
-			x = rightMovementExtreme - width / 2;
-			MoveSprite(spriteID, x, y);
-			return true;
-		}
-	}
-	if (a_direction == DOWN)
-	{
-		//move towards planet
-		y -= height;
-		//y -= move;
-		MoveSprite(spriteID, x, y);
-		if (y < 0 + height / 2)
-		{
-			y = 0 + height / 2;
-			MoveSprite(spriteID, x, y);
-		}
-		return false;
-	}
-	return false;
+	CheckCollisions();
+
+	x += speedX * a_deltaTime;
+	//y += speedY * a_deltaTime;
+
+	MoveSprite(spriteID, x, y);
+
+	//float move = 100.0f;
+	//if (a_direction == LEFT)
+	//{
+	//	//move left 
+	//	x -= a_deltaTime * speedX;
+	//	//x -= move;
+	//	MoveSprite(spriteID, x, y);
+	//	if (x < leftMovementExtreme + width / 2)
+	//	{
+	//		x = leftMovementExtreme + width / 2;
+	//		MoveSprite(spriteID, x, y);
+	//		return true;
+	//	}
+	//}
+	//if (a_direction == RIGHT)
+	//{
+	//	//move right
+	//	x += a_deltaTime * speed;
+	//	//x += move;
+	//	MoveSprite(spriteID, x, y);
+	//	if (x > rightMovementExtreme - width / 2)
+	//	{
+	//		x = rightMovementExtreme - width / 2;
+	//		MoveSprite(spriteID, x, y);
+	//		return true;
+	//	}
+	//}
+	//if (a_direction == DOWN)
+	//{
+	//	//move towards planet
+	//	y -= height;
+	//	//y -= move;
+	//	MoveSprite(spriteID, x, y);
+	//	if (y < 0 + height / 2)
+	//	{
+	//		y = 0 + height / 2;
+	//		MoveSprite(spriteID, x, y);
+	//	}
+	//	return false;
+	//}
+	//return false;
 }
 
-//setters/getters
+//draw the enemy
+void Enemy::Draw()
+{
+	DrawSprite(spriteID);
+}
+
+/*
+check all collisions and apply effects:
+IsCollidedLeftWall - flip speedX and add a speed to speedY else speedY = 0
+IsCollideRighttWall - flip speedX and add a speed to speedY else speedY = 0
+params:
+a_speedY: Speed to set speedY variable to make enemy move along Y axis. Should
+be negative so enemy moves 'down'.
+*/
+void Enemy::CheckCollisions()
+{
+	if (IsCollidedLeftWall() || IsCollidedRightWall())
+	{
+		speedX *= -1;
+		y -= height / 2;
+		MoveSprite(spriteID, x, y);
+	}/*
+	else
+	{
+		speedY = 0.0f;
+	}*/
+
+}
+
+
+// SETTERS / GETTERS
+
 void Enemy::SetSpriteID(unsigned int a_spriteID)
 {
 	spriteID = a_spriteID;
@@ -121,15 +160,25 @@ float Enemy::GetY()
 	return y;
 }
 
-void Enemy::SetSpeed(float a_speed)
+void Enemy::SetSpeedX(float a_speed)
 {
-	speed = a_speed;
+	speedX = a_speed;
 }
 
-float Enemy::GetSpeed()
+float Enemy::GetSpeedX()
 {
-	return speed;
+	return speedX;
 }
+
+//void Enemy::SetSpeedY(float a_speed)
+//{
+//	speedY = a_speed;
+//}
+//
+//float Enemy::GetSpeedY()
+//{
+//	return speedY;
+//}
 
 void Enemy::SetLeftMoveExtreme(unsigned int a_leftExtreme)
 {
@@ -153,4 +202,33 @@ unsigned int Enemy::GetRightMoveExtreme()
 
 Enemy::~Enemy()
 {
+}
+
+
+//PRIVATE FUNCTIONS
+
+/*
+check if collided with right extreme (wall) and return true, otherwise return false
+*/
+bool Enemy::IsCollidedRightWall()
+{
+	if (x >= rightMovementExtreme)
+	{
+		x = rightMovementExtreme;
+		return true;
+	}
+	return false;
+}
+
+/*
+check if collided with left extreme (wall) and return true, otherwise return false
+*/
+bool Enemy::IsCollidedLeftWall()
+{
+	if (x <= leftMovementExtreme)
+	{
+		x = leftMovementExtreme;
+		return true;
+	}
+	return false;
 }
