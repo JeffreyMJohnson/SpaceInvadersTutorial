@@ -8,6 +8,9 @@ Player::Player()
 	x = 50.0f;
 	y = 600.0f;
 
+	currentReloadBulletTime = 0.0f;
+	maxBulletReloadTime = .25f;
+
 }
 
 void Player::SetSize(float a_width, float a_height)
@@ -42,22 +45,6 @@ a_timeStep - a time delta since last frame
 */
 void Player::Move(float a_timeStep)
 {
-	/*if (IsKeyDown(moveLeftKey))
-	{
-		x -= a_timeStep * speed;
-		if (x < (leftMovementExtreme + width / 2))
-		{
-			x = (leftMovementExtreme + width / 2);
-		}
-	}
-	if (IsKeyDown(moveRightKey))
-	{
-		x += a_timeStep * speed;
-		if (x >(rightMovementExtreme - width / 2))
-		{
-			x = (rightMovementExtreme - width / 2);
-		}
-	}*/
 	HandleUI();
 	x += speed * a_timeStep;
 	HandleCollisions();
@@ -65,6 +52,36 @@ void Player::Move(float a_timeStep)
 	DrawSprite(spriteID);
 }
 
+/*
+Get inactive bullet from bullets array (if any) and initialize with player's current position.
+*/
+void Player::Shoot(unsigned int a_textureID, float _a_delta)
+{
+	if (IsKeyDown(shootKey) && currentReloadBulletTime >= maxBulletReloadTime)
+	{
+		GetInactiveBullet().InitializeBullet(x, y, 0, 500, a_textureID);
+		currentReloadBulletTime = 0.0f;
+	}
+	currentReloadBulletTime += _a_delta;
+	
+}
+
+/*
+Returns reference to first Bullet object in bullets array that is not active. If all are active
+returns the first bullet in the array.
+*/
+Bullet& Player::GetInactiveBullet()
+{
+	for (int i = 0; i < MAX_BULLETS; i++)
+	{
+		if (!bullets[i].isActive)
+		{
+			return bullets[i];
+		}
+	}
+
+	return bullets[0];
+}
 
 
 //Setters / getters
@@ -148,6 +165,16 @@ void Player::SetMoveRightgKey(unsigned int a_moveKey)
 unsigned int Player::GetMoveRightKey()
 {
 	return moveRightKey;
+}
+
+void Player::SetShootKey(unsigned int a_shootKey)
+{
+	shootKey = a_shootKey;
+}
+
+unsigned int Player::GetShootKey()
+{
+	return shootKey;
 }
 
 void Player::SetLeftMovementExtreme(unsigned int a_movementExtreme)

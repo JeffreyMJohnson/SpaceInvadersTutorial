@@ -3,11 +3,17 @@
 #ifndef _PLAYER_H_
 #define  _PLAYER_H_
 #include "AIE.h"
+#include "Bullet.h"
 
+const int MAX_BULLETS = 20;
 
 class Player
 {
 public:
+
+	
+	Bullet bullets[MAX_BULLETS];
+
 	Player();
 
 
@@ -24,7 +30,18 @@ public:
 	*/
 	void Move(float a_timeStep);
 
-	
+	/*
+	Get inactive bullet from bullets array (if any) and initialize with player's current position.
+	*/
+	void Shoot(unsigned int a_textureID, float _a_delta);
+
+	/*
+	Returns reference to first Bullet object in bullets array that is not active. If all are active
+	returns the first bullet in the array.
+	*/
+	Bullet& GetInactiveBullet();
+
+
 
 
 	//standard setters/getters
@@ -52,6 +69,9 @@ public:
 	void SetMoveRightgKey(unsigned int a_moveKey);
 	unsigned int GetMoveRightKey();
 
+	void SetShootKey(unsigned int a_shootKey);
+	unsigned int GetShootKey();
+
 	void SetLeftMovementExtreme(unsigned int a_movementExtreme);
 	unsigned int GetLeftMovementExtreme();
 
@@ -59,7 +79,7 @@ public:
 	unsigned int GetRightMovementExtreme();
 
 	~Player();
-	
+
 private:
 	const float SPEED_X = 500.0f;
 	unsigned int spriteID;
@@ -68,10 +88,13 @@ private:
 	float speed = 500.0f;
 	float x;
 	float y;
-unsigned int moveLeftKey;
+	unsigned int moveLeftKey;
 	unsigned int moveRightKey;
-unsigned int leftMovementExtreme;
+	unsigned int shootKey;
+	unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
+	float currentReloadBulletTime;
+	float maxBulletReloadTime;
 
 	/*
 	Set the speed according to user input from left/right move keys

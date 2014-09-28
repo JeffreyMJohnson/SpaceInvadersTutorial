@@ -7,6 +7,8 @@
 class Enemy
 {
 public:
+	bool isActive;
+
 	Enemy();
 
 	//helper functions for convenience 
@@ -16,7 +18,7 @@ public:
 
 
 	//move enemy 
-	void Move(float a_deltaTime);
+	void Move(float a_speed, int a_direction, float a_delta);
 
 	//draw the enemy
 	void Draw();
@@ -68,6 +70,8 @@ private:
 	//float speedY;
 	unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
+
+	
 
 	/*
 	check all collisions and apply effects:

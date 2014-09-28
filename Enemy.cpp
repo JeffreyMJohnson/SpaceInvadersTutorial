@@ -3,6 +3,7 @@
 
 Enemy::Enemy()
 {
+	isActive = true;
 }
 
 //Helper functions
@@ -26,61 +27,18 @@ void Enemy::SetPosition(float a_x, float a_y)
 }
 
 //move the enemy 
-void Enemy::Move(float a_deltaTime)
+void Enemy::Move(float a_speed, int a_direction, float a_delta)
 {
-	CheckCollisions();
+	//changed like lecture example
+	x += a_speed * a_direction * a_delta;
 
-	x += speedX * a_deltaTime;
-	//y += speedY * a_deltaTime;
 
-	MoveSprite(spriteID, x, y);
-
-	//float move = 100.0f;
-	//if (a_direction == LEFT)
-	//{
-	//	//move left 
-	//	x -= a_deltaTime * speedX;
-	//	//x -= move;
-	//	MoveSprite(spriteID, x, y);
-	//	if (x < leftMovementExtreme + width / 2)
-	//	{
-	//		x = leftMovementExtreme + width / 2;
-	//		MoveSprite(spriteID, x, y);
-	//		return true;
-	//	}
-	//}
-	//if (a_direction == RIGHT)
-	//{
-	//	//move right
-	//	x += a_deltaTime * speed;
-	//	//x += move;
-	//	MoveSprite(spriteID, x, y);
-	//	if (x > rightMovementExtreme - width / 2)
-	//	{
-	//		x = rightMovementExtreme - width / 2;
-	//		MoveSprite(spriteID, x, y);
-	//		return true;
-	//	}
-	//}
-	//if (a_direction == DOWN)
-	//{
-	//	//move towards planet
-	//	y -= height;
-	//	//y -= move;
-	//	MoveSprite(spriteID, x, y);
-	//	if (y < 0 + height / 2)
-	//	{
-	//		y = 0 + height / 2;
-	//		MoveSprite(spriteID, x, y);
-	//	}
-	//	return false;
-	//}
-	//return false;
 }
 
 //draw the enemy
 void Enemy::Draw()
 {
+	MoveSprite(spriteID, x, y);
 	DrawSprite(spriteID);
 }
 
@@ -99,12 +57,7 @@ void Enemy::CheckCollisions()
 		speedX *= -1;
 		y -= height / 2;
 		MoveSprite(spriteID, x, y);
-	}/*
-	else
-	{
-		speedY = 0.0f;
-	}*/
-
+	}
 }
 
 
@@ -182,7 +135,7 @@ float Enemy::GetSpeedX()
 
 void Enemy::SetLeftMoveExtreme(unsigned int a_leftExtreme)
 {
-	leftMovementExtreme = a_leftExtreme; 
+	leftMovementExtreme = a_leftExtreme;
 }
 
 unsigned int Enemy::GetLeftMoveExtreme()

@@ -18,16 +18,7 @@ float playerCannonXPos = screenWidth *0.5f;
 const float lineYPos = 45.0f;
 
 //enemy magic numbers
-const float ENEMY_Y_SPEED = -100.0f;
-const float ENEMY_X_SPEED = 100.0f;
-
-const int COLS = 9;
-const int ROWS = 5;
-const float ENEMY_START_POSITION_X = 50.0f;
-const float ENEMY_START_POSITION_Y = 600.0f;
-const float alienXPadding = 5.0f;
-const float alienYPadding = 5.0f;
-//const float AlienMoveSpeed = 100.0f;
+const int NUM_ENEMYS = 24;
 
 //magic strings
 const char* player1ScoreText = "SCORE < 1 >";
@@ -57,23 +48,27 @@ enum GAMESTATES
 void EnemiesLoad();
 
 //Move enemies
-void EnemiesMove(float a_timeDelta);
+void EnemiesMove(float a_speed, int a_direction, float a_timeDelta);
 
-//draw enemies from array to screen
-void EnemiesInitialDraw();
+void EnemiesDraw();
 
 //main menu game state code
 void MenuUpdate(unsigned int arcadeMarquee);
 
-//Draw UI for gamestate on screen
+//Draw UI for game state on screen
 void GameplayUIDraw();
 
 //GameState code
 void GameplayUpdate();
 
-Player player;
+bool CheckCollision(float x1, float y1, float x2, float y2, float distance);
 
-Enemy mEnemies[COLS * ROWS];
+
+Player player;
+unsigned int  mBulletTextureID;
+
+Enemy mEnemies[NUM_ENEMYS];
+int mEnemiesDirection = 1;
 
 GAMESTATES mCurrentState = MAIN_MENU;
 
@@ -88,10 +83,14 @@ int main(int argcx, char* argv[])
 	SetBackgroundColour(SColour(0x00, 0x00, 0x00, 0xFF));
 	AddFont(invadersFont);
 
+	//init bullet sprite id
+	mBulletTextureID = CreateSprite("./images/player_shot.png", 3, 20, true);
+
 	//init player
 	player.SetSize(playerCannonWidth, playerCannonHeight);
 	player.SetPosition(playerCannonXPos, playerCannonYPos);
 	player.SetMovementKeys('A', 'S');
+	player.SetShootKey(32);
 	player.SetMovementExtremes(playerCannonWidth / 2, screenWidth - (playerCannonWidth / 2));
 	player.SetSpriteID(CreateSprite("./images/cannon.png", player.GetWidth(), player.GetHeight(), true));
 	MoveSprite(player.GetSpriteID(), player.GetX(), player.GetY());
@@ -102,10 +101,12 @@ int main(int argcx, char* argv[])
 	//load enemies array
 	EnemiesLoad();
 
-	EnemiesInitialDraw();
-
 	MoveSprite(arcadeMarquee, 0, screenHeight);
 
+	//DEBUG:
+	mCurrentState = GAMEPLAY;
+
+	//game loop
 	do
 	{
 		ClearScreen();
@@ -132,58 +133,46 @@ int main(int argcx, char* argv[])
 	return 0;
 }
 
+/*
+Initialize enemy's in array and calculate/set initial position on screen in grid across top
+*/
 void EnemiesLoad()
 {
-	for (int i = 0, totalCount = ROWS * COLS; i < totalCount; ++i)
+	//first enemy's position
+	float enemyX = screenWidth * 0.2f;
+	float enemyY = screenHeight *0.9f;
+
+	for (int i = 0; i < NUM_ENEMYS; i++)
 	{
-		mEnemies[i].setMovementExtremes(playerCannonWidth / 2, screenWidth - (playerCannonWidth / 2));
-		mEnemies[i].SetSize(playerCannonWidth, playerCannonHeight);
-		mEnemies[i].SetPosition(playerCannonXPos, playerCannonYPos);
-		mEnemies[i].SetSpeedX(ENEMY_X_SPEED);
-		//mEnemies[i].SetSpeedY(0); //init to 0 so enemies don't move down
+		//initialize enemy and get spriteID
+		mEnemies[i].SetSize(player.GetWidth(), player.GetHeight());
 		mEnemies[i].SetSpriteID(CreateSprite("./images/invaders/invaders_1_00.png", mEnemies[i].GetWidth(), mEnemies[i].GetHeight(), true));
-	}
-}
 
-/*
-Call Move() and Draw() on each sprite
-*/
-void EnemiesMove(float a_timeDelta)
-{
-	float deltaTime = GetDeltaTime();
-	for (int i = 0; i < ROWS * COLS; i++)
-	{
-		mEnemies[i].Move(deltaTime);
-		mEnemies[i].Draw();
-	}
-
-}
-
-/*
-Draw enemies to screen in initial grid position. This is done by setting the first enemy to a constant x,y value and computing
-the rest off of the position of the previous by adding a padding value for the x and y positions
-*/
-void EnemiesInitialDraw()
-{
-	float xPos;
-	float yPos = ENEMY_START_POSITION_Y;
-	//need a separate index variable due to using nested loop to follow col, row pattern
-	int index = 0;
-
-	for (int row = 0; row < ROWS; ++row)
-	{
-		xPos = ENEMY_START_POSITION_X; //need to initialize here due to resetting value after each row
-		for (int col = 0; col < COLS; ++col, ++index)
+		//check if need new line of enemy
+		if (enemyX > screenWidth * 0.8f)
 		{
-			//Enemy enemy = mEnemies[index];
-
-			mEnemies[index].SetPosition(xPos, yPos);
-			MoveSprite(mEnemies[index].GetSpriteID(), mEnemies[index].GetX(), mEnemies[index].GetY());
-			DrawSprite(mEnemies[index].GetSpriteID());
-			xPos += mEnemies[index].GetWidth() + alienXPadding;
+			enemyX = screenWidth * 0.2f;
+			enemyY -= 0.04f * screenHeight;
 		}
-		yPos -= mEnemies[index].GetHeight() + alienYPadding; //need to subtract because drawing from top of screen down
+
+		//initialize position
+		mEnemies[i].SetPosition(enemyX, enemyY);
+
+		//increment next enemy's x position
+		enemyX += 0.12f * screenWidth;
 	}
+}
+
+/*
+Call Move() on each sprite
+*/
+void EnemiesMove(float a_speed, int a_direction, float a_timeDelta)
+{
+	for (int i = 0; i < NUM_ENEMYS; i++)
+	{
+		mEnemies[i].Move(a_speed, a_direction, a_timeDelta);
+	}
+
 }
 
 void MenuUpdate(unsigned int arcadeMarquee)
@@ -231,12 +220,94 @@ void GameplayUpdate()
 
 
 	player.Move(timeDelta);
-	EnemiesMove(timeDelta);
+	player.Shoot(mBulletTextureID, timeDelta);
+	for (int i = 0; i < MAX_BULLETS; i++)
+	{
+		if (player.bullets[i].isActive)
+		{
+			player.bullets[i].Update(timeDelta);
+			player.bullets[i].Draw();
+		}
+	}
+
+	bool lowerAliens = false;
+
+	for (int i = 0; i < NUM_ENEMYS; i++)
+	{
+		//check for right wall collision
+		if (mEnemies[i].GetX() > screenWidth * 0.9f)
+		{
+			mEnemies[i].SetX(screenWidth * 0.9f);
+			mEnemiesDirection = -1;
+			lowerAliens = true;
+			break;
+		}//check for right wall collision
+		else if (mEnemies[i].GetX() < screenWidth * 0.1f)
+		{
+			mEnemies[i].SetX(screenWidth * 0.1f);
+			mEnemiesDirection = 1;
+			lowerAliens = true;
+			break;
+		}
+	}
+
+	if (lowerAliens)
+	{
+		for (int i = 0; i < NUM_ENEMYS; i++)
+		{
+			mEnemies[i].SetY(mEnemies[i].GetY() - (screenHeight * 0.05f));
+		}
+	}
+
+	float speed = 10.0f;
+
+	//move enemies to new position
+	EnemiesMove(speed, mEnemiesDirection, timeDelta);
+	EnemiesDraw();
+	
+	for (int i = 0; i < MAX_BULLETS; i++)
+	{
+		for (int j = 0; j < NUM_ENEMYS; j++)
+		{
+			if (CheckCollision(player.bullets[i].x, player.bullets[i].y, mEnemies[j].GetX(), mEnemies[j].GetY(), 30.0f) &&
+				mEnemies[j].isActive && player.bullets[i].isActive)
+			{
+				mEnemies[j].isActive = false;
+				player.bullets[i].isActive = false;
+			}
+		}
+	}
+
 
 	//DEBUG: THIS IS FOR DEBUG, REMOVE FOR RELEASE
 	if (IsKeyDown(256)) //esc key code
 	{
 		mCurrentState = MAIN_MENU;
+	}
+}
+
+void EnemiesDraw()
+{
+	for (int i = 0; i < NUM_ENEMYS; i++)
+	{
+		if (mEnemies[i].isActive)
+		{
+			mEnemies[i].Draw();
+		}
+	}
+}
+
+bool CheckCollision(float x1, float y1, float x2, float y2, float distance)
+{
+	float d = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+
+	if (d < distance)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 
