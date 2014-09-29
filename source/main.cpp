@@ -71,6 +71,7 @@ unsigned int  mBulletTextureID;
 
 Enemy mEnemies[NUM_ENEMYS];
 int mEnemiesDirection = 1;
+int activeEnemiesCount = NUM_ENEMYS;
 
 GAMESTATES mCurrentState = MAIN_MENU;
 
@@ -79,6 +80,8 @@ int main(int argcx, char* argv[])
 {
 	//flag to quit game gracefully
 	bool quitGame = false;
+
+	
 
 	//init framework and window
 	Initialise(screenWidth, screenHeight, false, "Space Invaders Clone");
@@ -149,6 +152,7 @@ void EnemiesLoad()
 		//initialize enemy and get spriteID
 		mEnemies[i].SetSize(player.GetWidth(), player.GetHeight());
 		mEnemies[i].SetSpriteID(CreateSprite("./images/invaders/invaders_1_00.png", mEnemies[i].GetWidth(), mEnemies[i].GetHeight(), true));
+		mEnemies[i].SetScoreValue(30);
 
 		//check if need new line of enemy
 		if (enemyX > screenWidth * 0.8f)
@@ -200,7 +204,7 @@ void GameplayUIDraw()
 	DrawString(highScoreText, (screenWidth / 2) - 90, screenHeight - 2);
 	DrawString(player2ScoreText, screenWidth - 150, screenHeight - 2);
 
-	DrawString(player1Score, 35, screenHeight - 30);
+	DrawString(player.GetScoreAsString(), 35, screenHeight - 30);
 
 	DrawString(player2Score, screenWidth - 125, screenHeight - 30);
 
@@ -237,14 +241,14 @@ void GameplayUpdate()
 	for (int i = 0; i < NUM_ENEMYS; i++)
 	{
 		//check for right wall collision
-		if (mEnemies[i].GetX() > screenWidth * 0.9f)
+		if (mEnemies[i].isActive && mEnemies[i].GetX() > screenWidth * 0.9f)
 		{
 			mEnemies[i].SetX(screenWidth * 0.9f);
 			mEnemiesDirection = -1;
 			lowerAliens = true;
 			break;
 		}//check for right wall collision
-		else if (mEnemies[i].GetX() < screenWidth * 0.1f)
+		else if (mEnemies[i].isActive && mEnemies[i].GetX() < screenWidth * 0.1f)
 		{
 			mEnemies[i].SetX(screenWidth * 0.1f);
 			mEnemiesDirection = 1;
@@ -261,12 +265,13 @@ void GameplayUpdate()
 		}
 	}
 
-	float speed = 10.0f;
+	float speed = 1000.0f;
 
 	//move enemies to new position
-	EnemiesMove(speed, mEnemiesDirection, timeDelta);
+	EnemiesMove(speed / activeEnemiesCount, mEnemiesDirection, timeDelta);
 	EnemiesDraw();
 	
+	//collision check for bullets and enemies
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		for (int j = 0; j < NUM_ENEMYS; j++)
@@ -276,6 +281,8 @@ void GameplayUpdate()
 			{
 				mEnemies[j].isActive = false;
 				player.bullets[i].isActive = false;
+				player.AddScore(mEnemies[j].GetScoreValue());
+				activeEnemiesCount--;
 			}
 		}
 	}

@@ -26,7 +26,7 @@ class Player
 {
 public:
 
-	Score score;
+	
 	Bullet bullets[MAX_BULLETS];
 
 	Player();
@@ -56,6 +56,12 @@ public:
 	*/
 	Bullet& GetInactiveBullet();
 
+	/*
+	Add a score of the given param to the player's score. 
+	param:
+	a_score - int to add to player's score.
+	*/
+	void AddScore(int a_score);
 
 
 
@@ -93,6 +99,11 @@ public:
 	void SetRightMovementExtreme(unsigned int a_movementExtreme);
 	unsigned int GetRightMovementExtreme();
 
+	
+	int GetScore();
+	char* GetScoreAsString();
+
+
 	~Player();
 
 private:
@@ -110,6 +121,8 @@ private:
 	unsigned int rightMovementExtreme;
 	float currentReloadBulletTime;
 	float maxBulletReloadTime;
+	int score;
+	char scoreAsString[6];
 
 	/*
 	Set the speed according to user input from left/right move keys

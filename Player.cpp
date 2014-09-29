@@ -8,11 +8,10 @@ Player::Player()
 	x = 50.0f;
 	y = 600.0f;
 
-	score.value = 0;
-	std::cout << "score: " << score.ToString() << std::endl;
-
 	currentReloadBulletTime = 0.0f;
 	maxBulletReloadTime = .25f;
+
+	AddScore(0);
 
 }
 
@@ -84,6 +83,19 @@ Bullet& Player::GetInactiveBullet()
 	}
 
 	return bullets[0];
+}
+
+/*
+Add a score of the given param to the player's score.
+param:
+a_score - int to add to player's score.
+*/
+void Player::AddScore(int a_score)
+{
+	score += a_score;
+	char buff[6];
+	sprintf(buff, "%05d", score);
+	strcpy(scoreAsString, buff);
 }
 
 
@@ -198,6 +210,16 @@ void Player::SetRightMovementExtreme(unsigned int a_movementExtreme)
 unsigned int Player::GetRightMovementExtreme()
 {
 	return rightMovementExtreme;
+}
+
+int Player::GetScore()
+{
+	return score;
+}
+
+char * Player::GetScoreAsString()
+{
+	return scoreAsString;
 }
 
 Player::~Player()

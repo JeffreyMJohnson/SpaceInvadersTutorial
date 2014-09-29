@@ -54,6 +54,9 @@ public:
 
 	void SetRightMoveExtreme(unsigned int a_leftExtreme);
 	unsigned int GetRightMoveExtreme();
+	
+	void SetScoreValue(int a_scoreValue);
+	int GetScoreValue();
 
 
 
@@ -70,6 +73,7 @@ private:
 	//float speedY;
 	unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
+	int scoreValue;
 
 	
 

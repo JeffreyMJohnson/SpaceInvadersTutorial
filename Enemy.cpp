@@ -123,16 +123,6 @@ float Enemy::GetSpeedX()
 	return speedX;
 }
 
-//void Enemy::SetSpeedY(float a_speed)
-//{
-//	speedY = a_speed;
-//}
-//
-//float Enemy::GetSpeedY()
-//{
-//	return speedY;
-//}
-
 void Enemy::SetLeftMoveExtreme(unsigned int a_leftExtreme)
 {
 	leftMovementExtreme = a_leftExtreme;
@@ -151,6 +141,16 @@ void Enemy::SetRightMoveExtreme(unsigned int a_righttExtreme)
 unsigned int Enemy::GetRightMoveExtreme()
 {
 	return rightMovementExtreme;
+}
+
+void Enemy::SetScoreValue(int a_scoreValue)
+{
+	scoreValue = a_scoreValue;
+}
+
+int Enemy::GetScoreValue()
+{
+	return scoreValue;
 }
 
 Enemy::~Enemy()
