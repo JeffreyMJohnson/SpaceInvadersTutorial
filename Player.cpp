@@ -8,6 +8,9 @@ Player::Player()
 	x = 50.0f;
 	y = 600.0f;
 
+	score.value = 0;
+	std::cout << "score: " << score.ToString() << std::endl;
+
 	currentReloadBulletTime = 0.0f;
 	maxBulletReloadTime = .25f;
 

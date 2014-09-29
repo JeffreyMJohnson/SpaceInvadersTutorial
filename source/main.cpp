@@ -44,6 +44,8 @@ enum GAMESTATES
 };
 
 
+
+
 //Load array with Alien sprite ID
 void EnemiesLoad();
 

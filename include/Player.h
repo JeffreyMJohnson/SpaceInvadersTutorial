@@ -4,6 +4,21 @@
 #define  _PLAYER_H_
 #include "AIE.h"
 #include "Bullet.h"
+#include <string>
+#include <iostream>
+
+struct Score
+{
+	int value;
+	std::string value_s;
+
+	char* ToString()
+	{
+		char buff[6];
+		sprintf(buff, "%010d", value);
+		return buff;
+	}
+};
 
 const int MAX_BULLETS = 20;
 
@@ -11,7 +26,7 @@ class Player
 {
 public:
 
-	
+	Score score;
 	Bullet bullets[MAX_BULLETS];
 
 	Player();
