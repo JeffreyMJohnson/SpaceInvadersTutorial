@@ -15,17 +15,17 @@ Player::Player()
 
 }
 
-void Player::SetSize(float a_width, float a_height)
-{
-	width = a_width;
-	height = a_height;
-}
-
-void Player::SetPosition(float a_x, float a_y)
-{
-	x = a_x;
-	y = a_y;
-}
+//void Player::SetSize(float a_width, float a_height)
+//{
+//	width = a_width;
+//	height = a_height;
+//}
+//
+//void Player::SetPosition(float a_x, float a_y)
+//{
+//	x = a_x;
+//	y = a_y;
+//}
 
 void Player::SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight)
 {
@@ -39,20 +39,47 @@ void Player::SetMovementExtremes(unsigned int a_leftExtreme, unsigned int a_righ
 	rightMovementExtreme = a_rightExtreme;
 }
 
+void Player::Update(float a_delta)
+{
+	if (IsKeyDown(moveLeftKey))
+	{
+		x -= a_delta * speed;
+		if (x < (leftMovementExtreme + width * 0.5f))
+		{
+			x = (leftMovementExtreme + width * 0.5f);
+		}
+	}
+
+	if (IsKeyDown(moveRightKey))
+	{
+		x += a_delta * speed;
+		if (x >(rightMovementExtreme - width * 0.5f))
+		{
+			x = (rightMovementExtreme - width * 0.5f);
+		}
+	}
+
+}
+
+void Player::Draw()
+{
+	MoveSprite(spriteID, x, y);
+	DrawSprite(spriteID);
+}
 
 /*
 Move the player using formula speedX * a_timeStep param with speed being controlled by user input.
 params:
 a_timeStep - a time delta since last frame
 */
-void Player::Move(float a_timeStep)
-{
-	HandleUI();
-	x += speed * a_timeStep;
-	HandleCollisions();
-	MoveSprite(spriteID, x, y);
-	DrawSprite(spriteID);
-}
+//void Player::Move(float a_timeStep)
+//{
+//	HandleUI();
+//	x += speed * a_timeStep;
+//	HandleCollisions();
+//	MoveSprite(spriteID, x, y);
+//	DrawSprite(spriteID);
+//}
 
 /*
 Get inactive bullet from bullets array (if any) and initialize with player's current position.
@@ -101,36 +128,36 @@ void Player::AddScore(int a_score)
 
 //Setters / getters
 
-void Player::SetSpriteID(unsigned int a_ID)
-{
-	spriteID = a_ID;
-}
-
-unsigned int Player::GetSpriteID()
-{
-	return spriteID;
-}
-
-void Player::SetWidth(float a_width)
-{
-	width = a_width;
-}
-
-float Player::GetWidth()
-{
-	return width;
-}
-
-
-void Player::SetHeight(float a_height)
-{
-	height = a_height;
-}
-
-float Player::GetHeight()
-{
-	return height;
-}
+//void Player::SetSpriteID(unsigned int a_ID)
+//{
+//	spriteID = a_ID;
+//}
+//
+//unsigned int Player::GetSpriteID()
+//{
+//	return spriteID;
+//}
+//
+//void Player::SetWidth(float a_width)
+//{
+//	width = a_width;
+//}
+//
+//float Player::GetWidth()
+//{
+//	return width;
+//}
+//
+//
+//void Player::SetHeight(float a_height)
+//{
+//	height = a_height;
+//}
+//
+//float Player::GetHeight()
+//{
+//	return height;
+//}
 
 void Player::SetSpeed(float a_speed)
 {
@@ -142,25 +169,25 @@ float Player::GetSpeed()
 	return speed;
 }
 
-void Player::SetX(float a_x)
-{
-	x = a_x;
-}
-
-float Player::GetX()
-{
-	return x;
-}
-
-void Player::SetY(float a_y)
-{
-	y = a_y;
-}
-
-float Player::GetY()
-{
-	return y;
-}
+//void Player::SetX(float a_x)
+//{
+//	x = a_x;
+//}
+//
+//float Player::GetX()
+//{
+//	return x;
+//}
+//
+//void Player::SetY(float a_y)
+//{
+//	y = a_y;
+//}
+//
+//float Player::GetY()
+//{
+//	return y;
+//}
 
 void Player::SetMoveLeftKey(unsigned int a_moveKey)
 {
@@ -229,34 +256,34 @@ Player::~Player()
 /*
 Set the speed according to user input from left/right move keys
 */
-void Player::HandleUI()
-{
-	if (IsKeyDown(moveLeftKey))
-	{
-		speed = SPEED_X * -1;
-	}
-	else if (IsKeyDown(moveRightKey))
-	{
-		speed = SPEED_X;
-	}
-	else
-	{
-		speed = 0;
-	}
-}
+//void Player::HandleUI()
+//{
+//	if (IsKeyDown(moveLeftKey))
+//	{
+//		speed = SPEED_X * -1;
+//	}
+//	else if (IsKeyDown(moveRightKey))
+//	{
+//		speed = SPEED_X;
+//	}
+//	else
+//	{
+//		speed = 0;
+//	}
+//}
 
 /*
 Handle collisions with the right extreme (wall) and left extreme (wall) by stopping player
 from going further than max.
 */
-void Player::HandleCollisions()
-{
-	if (x < leftMovementExtreme)
-	{
-		x = leftMovementExtreme;
-	}
-	if (x > rightMovementExtreme)
-	{
-		x = rightMovementExtreme;
-	}
-}
+//void Player::HandleCollisions()
+//{
+//	if (x < leftMovementExtreme)
+//	{
+//		x = leftMovementExtreme;
+//	}
+//	if (x > rightMovementExtreme)
+//	{
+//		x = rightMovementExtreme;
+//	}
+//}

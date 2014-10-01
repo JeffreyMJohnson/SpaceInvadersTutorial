@@ -1,34 +1,40 @@
 #pragma once
-#include "AIE.h"
+
 
 #ifndef _ENEMY_H_
 #define _ENEMY_H_
 
-class Enemy
+#include "AIE.h"
+#include "Entity.h"
+
+class Enemy : public Entity
 {
 public:
-	bool isActive;
-
 	Enemy();
+
+	virtual void Update(float delta);
+	virtual void Draw();
+
+	void SetSpeed(float a_speed);
+	float GetSpeed();
+
+
 
 	//helper functions for convenience 
 	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);
-	void SetSize(float a_width, float a_height);
-	void SetPosition(float a_x, float a_y);
+	/*void SetSize(float a_width, float a_height);
+	void SetPosition(float a_x, float a_y);*/
 
 
 	//move enemy 
 	void Move(float a_speed, int a_direction, float a_delta);
 
 	//draw the enemy
-	void Draw();
+//	void Draw();
 
-	
-
-	
 	//setters/getters
 
-	void SetSpriteID(unsigned int a_spriteID);
+	/*void SetSpriteID(unsigned int a_spriteID);
 	unsigned int GetSpriteID();
 
 	void SetWidth(float a_width);
@@ -41,7 +47,7 @@ public:
 	float GetX();
 
 	void SetY(float a_y);
-	float GetY();
+	float GetY();*/
 
 	void SetSpeedX(float a_speedX);
 	float GetSpeedX();
@@ -58,23 +64,30 @@ public:
 	void SetScoreValue(int a_scoreValue);
 	int GetScoreValue();
 
+	void SetDirection(int a_direction);
+	int GetDirection();
 
+	void SetIsActive(bool a_isActive);
+	bool GetIsActive();
+	
 
 	~Enemy();
 
 private:
 	//const float MAX_SPEED_Y = 100.0f;
-	unsigned int spriteID;
+	/*unsigned int spriteID;
 	float width;
 	float height;
 	float x;
-	float y;
-	float speedX;
+	float y;*/
+	//float speedX;
 	//float speedY;
 	unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
 	int scoreValue;
-
+	bool isActive;
+	float speed;
+	int direction;
 	
 
 	/*

@@ -4,6 +4,7 @@
 #define  _PLAYER_H_
 #include "AIE.h"
 #include "Bullet.h"
+#include "Entity.h"
 #include <string>
 #include <iostream>
 
@@ -22,28 +23,31 @@ struct Score
 
 const int MAX_BULLETS = 20;
 
-class Player
+class Player : public Entity
 {
 public:
 
-	
 	Bullet bullets[MAX_BULLETS];
 
 	Player();
 
 
 	//convenience functions
-	void SetSize(float a_width, float a_height);
-	void SetPosition(float a_x, float a_y);
+	/*void SetSize(float a_width, float a_height);
+	void SetPosition(float a_x, float a_y);*/
 	void SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight);
 	void SetMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);
+
+	//Must implement these methods before can instantiate class
+	virtual void Update(float a_delta);
+	virtual void Draw();
 
 	/*
 	Move the player using formula speedX * a_timeStep param.
 	params:
 	a_timeStep - a time delta since last frame
 	*/
-	void Move(float a_timeStep);
+	//void Move(float a_timeStep);
 
 	/*
 	Get inactive bullet from bullets array (if any) and initialize with player's current position.
@@ -66,23 +70,23 @@ public:
 
 
 	//standard setters/getters
-	void SetSpriteID(unsigned int a_ID);
+	/*void SetSpriteID(unsigned int a_ID);
 	unsigned int GetSpriteID();
 
 	void SetWidth(float a_width);
 	float GetWidth();
 
 	void SetHeight(float a_height);
-	float GetHeight();
+	float GetHeight();*/
 
 	void SetSpeed(float a_speed);
 	float GetSpeed();
 
-	void SetX(float a_x);
-	float GetX();
+	//void SetX(float a_x);
+	//float GetX();
 
-	void SetY(float a_y);
-	float GetY();
+	//void SetY(float a_y);
+	//float GetY();
 
 	void SetMoveLeftKey(unsigned int a_moveKey);
 	unsigned int GetLeftMoveKey();
@@ -106,19 +110,22 @@ public:
 
 	~Player();
 
+	unsigned int shootKey;
+
 private:
-	const float SPEED_X = 500.0f;
+	/*const float SPEED_X = 500.0f;
 	unsigned int spriteID;
 	float width;
-	float height;
-	float speed = 500.0f;
-	float x;
-	float y;
+	float height;*/
+	float speed;
+	/*float x;
+	float y;*/
 	unsigned int moveLeftKey;
 	unsigned int moveRightKey;
-	unsigned int shootKey;
+	
 	unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
+
 	float currentReloadBulletTime;
 	float maxBulletReloadTime;
 	int score;
@@ -127,13 +134,13 @@ private:
 	/*
 	Set the speed according to user input from left/right move keys
 	*/
-	void HandleUI();
+	//void HandleUI();
 
 	/*
 	Handle collisions with the right extreme (wall) and left extreme (wall) by stopping player
 	from going further than max.
 	*/
-	void HandleCollisions();
+	//void HandleCollisions();
 };
 
 
