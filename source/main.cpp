@@ -3,17 +3,13 @@
 #include "Enemy.h"
 #include "stdlib.h"
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
 //magic numbers
 const int screenWidth = 672;
 const int screenHeight = 780;
-
-const int playerCannonWidth = 64;
-const int playerCannonHeight = 32;
-const float playerCannonYPos = 100.0f;
-float playerCannonXPos = screenWidth *0.5f;
 
 const float lineYPos = 45.0f;
 
@@ -36,6 +32,8 @@ char* playerLives = "3";
 
 const char* invadersFont = "./fonts/invaders.fnt";
 
+
+
 enum GAMESTATES
 {
 	MAIN_MENU,
@@ -44,15 +42,12 @@ enum GAMESTATES
 };
 
 
+void PlayerLogic(Player*, float a_delta);
+void EnemyLogic(Enemy* enemy, bool& lowerAliens);
 
 
 //Load array with Alien sprite ID
 void EnemiesLoad();
-
-//Move enemies
-void EnemiesMove(float a_speed, int a_direction, float a_timeDelta);
-
-void EnemiesDraw();
 
 //main menu game state code
 void MenuUpdate(unsigned int arcadeMarquee);
@@ -65,11 +60,16 @@ void GameplayUpdate();
 
 bool CheckCollision(float x1, float y1, float x2, float y2, float distance);
 
+Player* player;
+int score = 0;
+int direction = 1;
 
-Player player;
 unsigned int  mBulletTextureID;
 
-Enemy mEnemies[NUM_ENEMYS];
+
+
+vector<Entity*>gameObjects;
+
 int mEnemiesDirection = 1;
 int activeEnemiesCount = NUM_ENEMYS;
 
@@ -92,13 +92,17 @@ int main(int argcx, char* argv[])
 	mBulletTextureID = CreateSprite("./images/player_shot.png", 3, 20, true);
 
 	//init player
-	player.SetSize(playerCannonWidth, playerCannonHeight);
-	player.SetPosition(playerCannonXPos, playerCannonYPos);
-	player.SetMovementKeys('A', 'S');
-	player.SetShootKey(32);
-	player.SetMovementExtremes(playerCannonWidth / 2, screenWidth - (playerCannonWidth / 2));
-	player.SetSpriteID(CreateSprite("./images/cannon.png", player.GetWidth(), player.GetHeight(), true));
-	MoveSprite(player.GetSpriteID(), player.GetX(), player.GetY());
+	 player = new Player();
+	player->SetSize(64.0f, 32.0f);
+	player->SetMovementKeys('A', 'D');
+	player->SetMovementExtremes(0, screenWidth);
+	player->SetSpriteId(CreateSprite("./images/cannon.png", player->GetWidth(), player->GetHeight(), true));
+	player->SetX(screenWidth * .5f);
+	player->SetY(100.0f);
+	player->SetSpeed((float)screenWidth);
+
+	//add player to dynamic array
+	gameObjects.push_back(player);
 
 	//create marquee sprite
 	unsigned int arcadeMarquee = CreateSprite("./images/Space-Invaders-Marquee.png", screenWidth, screenHeight, false);
@@ -149,37 +153,42 @@ void EnemiesLoad()
 
 	for (int i = 0; i < NUM_ENEMYS; i++)
 	{
-		//initialize enemy and get spriteID
-		mEnemies[i].SetSize(player.GetWidth(), player.GetHeight());
-		mEnemies[i].SetSpriteID(CreateSprite("./images/invaders/invaders_1_00.png", mEnemies[i].GetWidth(), mEnemies[i].GetHeight(), true));
-		mEnemies[i].SetScoreValue(30);
+		//BUG??
+		Enemy* enemy = new Enemy();
+		
+		enemy->SetSpriteId(CreateSprite("./images/invaders/invaders_1_00.png",player->GetWidth(), player->GetHeight(), true));
 
-		//check if need new line of enemy
 		if (enemyX > screenWidth * 0.8f)
 		{
 			enemyX = screenWidth * 0.2f;
 			enemyY -= 0.04f * screenHeight;
 		}
 
-		//initialize position
-		mEnemies[i].SetPosition(enemyX, enemyY);
+		enemy->SetX(enemyX);
+		enemy->SetY(enemyY);
 
-		//increment next enemy's x position
 		enemyX += 0.12f * screenWidth;
+
+		gameObjects.push_back(enemy);
+
+		
 	}
 }
 
-/*
-Call Move() on each sprite
-*/
-void EnemiesMove(float a_speed, int a_direction, float a_timeDelta)
-{
-	for (int i = 0; i < NUM_ENEMYS; i++)
-	{
-		mEnemies[i].Move(a_speed, a_direction, a_timeDelta);
-	}
-
-}
+///*
+//Call Move() on each sprite
+//*/
+//void EnemiesMove(float a_speed, int a_direction, float a_timeDelta)
+//{
+//	for (int i = 0; i < NUM_ENEMYS; i++)
+//	{
+//		mEnemies[i].SetDirection(a_direction);
+//		mEnemies[i].SetSpeed(a_speed / activeEnemiesCount);
+//		mEnemies[i].Update(a_timeDelta);
+//		mEnemies[i].Draw();
+//	}
+//
+//}
 
 void MenuUpdate(unsigned int arcadeMarquee)
 {
@@ -204,8 +213,6 @@ void GameplayUIDraw()
 	DrawString(highScoreText, (screenWidth / 2) - 90, screenHeight - 2);
 	DrawString(player2ScoreText, screenWidth - 150, screenHeight - 2);
 
-	DrawString(player.GetScoreAsString(), 35, screenHeight - 30);
-
 	DrawString(player2Score, screenWidth - 125, screenHeight - 30);
 
 	DrawString(highScore, screenWidth / 2 - 60, screenHeight - 30);
@@ -224,68 +231,102 @@ void GameplayUpdate()
 
 	GameplayUIDraw();
 
+	player->Update(timeDelta);
+	player->Draw();
 
-	player.Move(timeDelta);
-	player.Shoot(mBulletTextureID, timeDelta);
+	player->Shoot(mBulletTextureID, timeDelta);
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
-		if (player.bullets[i].isActive)
+		if (player->bullets[i].isActive)
 		{
-			player.bullets[i].Update(timeDelta);
-			player.bullets[i].Draw();
+			player->bullets[i].Update(timeDelta);
+			player->bullets[i].Draw();
 		}
 	}
 
 	bool lowerAliens = false;
 
-	for (int i = 0; i < NUM_ENEMYS; i++)
+	for (auto object : gameObjects)
 	{
-		//check for right wall collision
-		if (mEnemies[i].isActive && mEnemies[i].GetX() > screenWidth * 0.9f)
+		//determine type
+		if (dynamic_cast<Player*>(object) != 0)
 		{
-			mEnemies[i].SetX(screenWidth * 0.9f);
-			mEnemiesDirection = -1;
-			lowerAliens = true;
-			break;
-		}//check for right wall collision
-		else if (mEnemies[i].isActive && mEnemies[i].GetX() < screenWidth * 0.1f)
-		{
-			mEnemies[i].SetX(screenWidth * 0.1f);
-			mEnemiesDirection = 1;
-			lowerAliens = true;
-			break;
+			PlayerLogic(dynamic_cast<Player*>(object), timeDelta);
 		}
+
+		if (dynamic_cast<Enemy*>(object) != 0)
+		{
+			EnemyLogic(dynamic_cast<Enemy*>(object), lowerAliens);
+		}
+
+		object->Update(timeDelta);
+		object->Draw();
 	}
 
+	//with better logic this could be put in main object update loop
 	if (lowerAliens)
 	{
-		for (int i = 0; i < NUM_ENEMYS; i++)
+		for (auto object : gameObjects)
 		{
-			mEnemies[i].SetY(mEnemies[i].GetY() - (screenHeight * 0.05f));
-		}
-	}
-
-	float speed = 1000.0f;
-
-	//move enemies to new position
-	EnemiesMove(speed / activeEnemiesCount, mEnemiesDirection, timeDelta);
-	EnemiesDraw();
-	
-	//collision check for bullets and enemies
-	for (int i = 0; i < MAX_BULLETS; i++)
-	{
-		for (int j = 0; j < NUM_ENEMYS; j++)
-		{
-			if (CheckCollision(player.bullets[i].x, player.bullets[i].y, mEnemies[j].GetX(), mEnemies[j].GetY(), 30.0f) &&
-				mEnemies[j].isActive && player.bullets[i].isActive)
+			if (dynamic_cast<Enemy*>(object) != 0)
 			{
-				mEnemies[j].isActive = false;
-				player.bullets[i].isActive = false;
-				player.AddScore(mEnemies[j].GetScoreValue());
-				activeEnemiesCount--;
+				Enemy* enemy = dynamic_cast<Enemy*>(object);
+
+				enemy->SetY(enemy->GetY() - (0.05f * screenHeight));
 			}
 		}
 	}
+
+
+	//for (int i = 0; i < NUM_ENEMYS; i++)
+	//{
+	//	//check for right wall collision
+	//	if (mEnemies[i].GetIsActive() && mEnemies[i].GetX() > screenWidth * 0.9f)
+	//	{
+	//		mEnemies[i].SetX(screenWidth * 0.9f);
+	//		mEnemiesDirection = -1;
+	//		lowerAliens = true;
+	//		break;
+	//	}//check for right wall collision
+	//	else if (mEnemies[i].GetIsActive() && mEnemies[i].GetX() < screenWidth * 0.1f)
+	//	{
+	//		mEnemies[i].SetX(screenWidth * 0.1f);
+	//		mEnemiesDirection = 1;
+	//		lowerAliens = true;
+	//		break;
+	//	}
+	//}
+
+	//if (lowerAliens)
+	//{
+	//	for (int i = 0; i < NUM_ENEMYS; i++)
+	//	{
+	//		mEnemies[i].SetY(mEnemies[i].GetY() - (screenHeight * 0.05f));
+	//	}
+	//}
+
+	//float speed = 1000.0f;
+
+	////move enemies to new position
+	//EnemiesMove(speed / activeEnemiesCount, mEnemiesDirection, timeDelta);
+	////EnemiesDraw();
+
+
+	//
+	////collision check for bullets and enemies
+	//for (int i = 0; i < MAX_BULLETS; i++)
+	//{
+	//	for (int j = 0; j < NUM_ENEMYS; j++)
+	//	{
+	//		if (CheckCollision(player.bullets[i].x, player.bullets[i].y, mEnemies[j].GetX(), mEnemies[j].GetY(), 30.0f) &&
+	//			mEnemies[j].GetIsActive() && player.bullets[i].isActive)
+	//		{
+	//			mEnemies[j].SetIsActive(false);
+	//			player.bullets[i].isActive = false;
+	//			activeEnemiesCount--;
+	//		}
+	//	}
+	//}
 
 
 	//DEBUG: THIS IS FOR DEBUG, REMOVE FOR RELEASE
@@ -295,16 +336,16 @@ void GameplayUpdate()
 	}
 }
 
-void EnemiesDraw()
-{
-	for (int i = 0; i < NUM_ENEMYS; i++)
-	{
-		if (mEnemies[i].isActive)
-		{
-			mEnemies[i].Draw();
-		}
-	}
-}
+//void EnemiesDraw()
+//{
+//	for (int i = 0; i < NUM_ENEMYS; i++)
+//	{
+//		if (mEnemies[i].GetIsActive())
+//		{
+//			mEnemies[i].Draw();
+//		}
+//	}
+//}
 
 bool CheckCollision(float x1, float y1, float x2, float y2, float distance)
 {
@@ -320,3 +361,53 @@ bool CheckCollision(float x1, float y1, float x2, float y2, float distance)
 	}
 }
 
+void PlayerLogic(Player* a_player, float a_delta)
+{
+	a_player->Shoot(mBulletTextureID, a_delta);
+
+	for (int i = 0; i < MAX_BULLETS; i++)
+	{
+		a_player->bullets[i].Update(a_delta);
+		a_player->bullets[i].Draw();
+	}
+
+	for (auto enemy : gameObjects)
+	{
+		if (dynamic_cast<Enemy*>(enemy) != 0)
+		{
+			Enemy* enemyShip = dynamic_cast<Enemy*>(enemy);
+			for (int i = 0; i < MAX_BULLETS; i++)
+			{
+				if (CheckCollision(a_player->bullets[i].x, a_player->bullets[i].y, enemyShip->GetX(), enemyShip->GetY(), 30.0f) &&
+					enemyShip->GetIsActive()  &&
+					a_player->bullets[i].isActive)
+				{
+					enemyShip->SetIsActive(false);
+					a_player->bullets[i].isActive = false;
+					score++;
+					activeEnemiesCount--;
+				}
+			}
+		}
+	}
+}
+
+void EnemyLogic(Enemy* a_enemy, bool& lowerAliens)
+{
+	if (a_enemy->GetX() > screenWidth * 0.9f && !lowerAliens)
+	{
+		direction = -1;
+		lowerAliens = true;
+		//break;
+	}
+	else if (a_enemy->GetX() < screenWidth * 0.1f && !lowerAliens)
+	{
+		direction = 1;
+		lowerAliens = true;
+		//break;
+	}
+
+	int speed = 10;
+	a_enemy->SetDirection(direction);
+	a_enemy->SetSpeed(speed / activeEnemiesCount);
+}
