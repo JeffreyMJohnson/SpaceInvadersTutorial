@@ -91,19 +91,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Bullet.cpp" />
-    <ClCompile Include="Enemy.cpp" />
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="source\Bullet.cpp" />
+    <ClCompile Include="source\Enemy.cpp" />
+    <ClCompile Include="source\Entity.cpp" />
+    <ClCompile Include="source\GameState.cpp" />
     <ClCompile Include="source\main.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">./include/;./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="source\MainMenuState.cpp" />
+    <ClCompile Include="source\Player.cpp" />
+    <ClCompile Include="source\StateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bullet.h" />
-    <ClInclude Include="Enemy.h" />
-    <ClInclude Include="Entity.h" />
+    <ClInclude Include="include\BaseState.h" />
+    <ClInclude Include="include\Bullet.h" />
+    <ClInclude Include="include\Enemy.h" />
+    <ClInclude Include="include\Entity.h" />
+    <ClInclude Include="include\GameState.h" />
+    <ClInclude Include="include\MainMenuState.h" />
     <ClInclude Include="include\Player.h" />
+    <ClInclude Include="include\StateMachine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
