@@ -11,21 +11,9 @@ Player::Player()
 	currentReloadBulletTime = 0.0f;
 	maxBulletReloadTime = .25f;
 
-	AddScore(0);
+	//AddScore(0);
 
 }
-
-//void Player::SetSize(float a_width, float a_height)
-//{
-//	width = a_width;
-//	height = a_height;
-//}
-//
-//void Player::SetPosition(float a_x, float a_y)
-//{
-//	x = a_x;
-//	y = a_y;
-//}
 
 void Player::SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight)
 {
@@ -68,20 +56,6 @@ void Player::Draw()
 }
 
 /*
-Move the player using formula speedX * a_timeStep param with speed being controlled by user input.
-params:
-a_timeStep - a time delta since last frame
-*/
-//void Player::Move(float a_timeStep)
-//{
-//	HandleUI();
-//	x += speed * a_timeStep;
-//	HandleCollisions();
-//	MoveSprite(spriteID, x, y);
-//	DrawSprite(spriteID);
-//}
-
-/*
 Get inactive bullet from bullets array (if any) and initialize with player's current position.
 */
 void Player::Shoot(unsigned int a_textureID, float _a_delta)
@@ -112,52 +86,10 @@ Bullet& Player::GetInactiveBullet()
 	return bullets[0];
 }
 
-/*
-Add a score of the given param to the player's score.
-param:
-a_score - int to add to player's score.
-*/
-void Player::AddScore(int a_score)
-{
-	score += a_score;
-	char buff[6];
-	sprintf(buff, "%05d", score);
-	strcpy(scoreAsString, buff);
-}
+
 
 
 //Setters / getters
-
-//void Player::SetSpriteID(unsigned int a_ID)
-//{
-//	spriteID = a_ID;
-//}
-//
-//unsigned int Player::GetSpriteID()
-//{
-//	return spriteID;
-//}
-//
-//void Player::SetWidth(float a_width)
-//{
-//	width = a_width;
-//}
-//
-//float Player::GetWidth()
-//{
-//	return width;
-//}
-//
-//
-//void Player::SetHeight(float a_height)
-//{
-//	height = a_height;
-//}
-//
-//float Player::GetHeight()
-//{
-//	return height;
-//}
 
 void Player::SetSpeed(float a_speed)
 {
@@ -168,26 +100,6 @@ float Player::GetSpeed()
 {
 	return speed;
 }
-
-//void Player::SetX(float a_x)
-//{
-//	x = a_x;
-//}
-//
-//float Player::GetX()
-//{
-//	return x;
-//}
-//
-//void Player::SetY(float a_y)
-//{
-//	y = a_y;
-//}
-//
-//float Player::GetY()
-//{
-//	return y;
-//}
 
 void Player::SetMoveLeftKey(unsigned int a_moveKey)
 {
@@ -239,51 +151,16 @@ unsigned int Player::GetRightMovementExtreme()
 	return rightMovementExtreme;
 }
 
-int Player::GetScore()
-{
-	return score;
-}
-
-char * Player::GetScoreAsString()
-{
-	return scoreAsString;
-}
+//int Player::GetScore()
+//{
+//	return score;
+//}
+//
+//char * Player::GetScoreAsString()
+//{
+//	return scoreAsString;
+//}
 
 Player::~Player()
 {
 }
-
-/*
-Set the speed according to user input from left/right move keys
-*/
-//void Player::HandleUI()
-//{
-//	if (IsKeyDown(moveLeftKey))
-//	{
-//		speed = SPEED_X * -1;
-//	}
-//	else if (IsKeyDown(moveRightKey))
-//	{
-//		speed = SPEED_X;
-//	}
-//	else
-//	{
-//		speed = 0;
-//	}
-//}
-
-/*
-Handle collisions with the right extreme (wall) and left extreme (wall) by stopping player
-from going further than max.
-*/
-//void Player::HandleCollisions()
-//{
-//	if (x < leftMovementExtreme)
-//	{
-//		x = leftMovementExtreme;
-//	}
-//	if (x > rightMovementExtreme)
-//	{
-//		x = rightMovementExtreme;
-//	}
-//}

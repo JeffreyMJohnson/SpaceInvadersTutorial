@@ -5,7 +5,6 @@
 #include "AIE.h"
 #include "Bullet.h"
 #include "Entity.h"
-#include <string>
 #include <iostream>
 
 struct Score
@@ -42,12 +41,6 @@ public:
 	virtual void Update(float a_delta);
 	virtual void Draw();
 
-	/*
-	Move the player using formula speedX * a_timeStep param.
-	params:
-	a_timeStep - a time delta since last frame
-	*/
-	//void Move(float a_timeStep);
 
 	/*
 	Get inactive bullet from bullets array (if any) and initialize with player's current position.
@@ -65,28 +58,14 @@ public:
 	param:
 	a_score - int to add to player's score.
 	*/
-	void AddScore(int a_score);
+	//void AddScore(int a_score);
 
 
 
 	//standard setters/getters
-	/*void SetSpriteID(unsigned int a_ID);
-	unsigned int GetSpriteID();
-
-	void SetWidth(float a_width);
-	float GetWidth();
-
-	void SetHeight(float a_height);
-	float GetHeight();*/
-
+	
 	void SetSpeed(float a_speed);
 	float GetSpeed();
-
-	//void SetX(float a_x);
-	//float GetX();
-
-	//void SetY(float a_y);
-	//float GetY();
 
 	void SetMoveLeftKey(unsigned int a_moveKey);
 	unsigned int GetLeftMoveKey();
@@ -102,24 +81,17 @@ public:
 
 	void SetRightMovementExtreme(unsigned int a_movementExtreme);
 	unsigned int GetRightMovementExtreme();
-
 	
-	int GetScore();
-	char* GetScoreAsString();
-
+	//int GetScore();
+	//char* GetScoreAsString();
 
 	~Player();
 
 	unsigned int shootKey;
 
 private:
-	/*const float SPEED_X = 500.0f;
-	unsigned int spriteID;
-	float width;
-	float height;*/
 	float speed;
-	/*float x;
-	float y;*/
+
 	unsigned int moveLeftKey;
 	unsigned int moveRightKey;
 	
@@ -128,19 +100,8 @@ private:
 
 	float currentReloadBulletTime;
 	float maxBulletReloadTime;
-	int score;
-	char scoreAsString[6];
+	
 
-	/*
-	Set the speed according to user input from left/right move keys
-	*/
-	//void HandleUI();
-
-	/*
-	Handle collisions with the right extreme (wall) and left extreme (wall) by stopping player
-	from going further than max.
-	*/
-	//void HandleCollisions();
 };
 
 

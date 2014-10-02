@@ -20,18 +20,6 @@ void Enemy::setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_right
 	rightMovementExtreme = a_rightExtreme;
 }
 
-//void Enemy::SetSize(float a_width, float a_height)
-//{
-//	width = a_width;
-//	height = a_height;
-//}
-//
-//void Enemy::SetPosition(float a_x, float a_y)
-//{
-//	x = a_x;
-//	y = a_y;
-//}
-
 //move the enemy 
 void Enemy::Move(float a_speed, int a_direction, float a_delta)
 {
@@ -82,56 +70,6 @@ int Enemy::GetDirection()
 {
 	return direction;
 }
-
-//void Enemy::SetSpriteID(unsigned int a_spriteID)
-//{
-//	spriteID = a_spriteID;
-//}
-//
-//unsigned int Enemy::GetSpriteID()
-//{
-//	return spriteID;
-//}
-//
-//void Enemy::SetWidth(float a_width)
-//{
-//	width = a_width;
-//}
-//
-//float Enemy::GetWidth()
-//{
-//	return width;
-//}
-//
-//void Enemy::SetHeight(float a_height)
-//{
-//	height = a_height;
-//}
-//
-//float Enemy::GetHeight()
-//{
-//	return height;
-//}
-//
-//void Enemy::SetX(float a_x)
-//{
-//	x = a_x;
-//}
-//
-//float Enemy::GetX()
-//{
-//	return x;
-//}
-//
-//void Enemy::SetY(float a_y)
-//{
-//	y = a_y;
-//}
-//
-//float Enemy::GetY()
-//{
-//	return y;
-//}
 
 void Enemy::SetSpeed(float a_speed)
 {
