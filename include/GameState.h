@@ -5,6 +5,8 @@
 #include "StateMachine.h"
 #include "Player.h";
 #include "Enemy.h"
+#include "Highscores.h"
+#include "LeaderboardState.h"
 #include <vector>
 #include <string>
 
@@ -31,15 +33,20 @@ private:
 
 	bool CheckCollision(float x1, float y1, float x2, float y2, float distance);
 
-	void AddScore(int a_score);
-
 	std::vector<Entity*> gameObjects;
 	Enemy enemies[NUM_ENEMYS];
 
 	unsigned int bulletTexture;
 	int score;
+	int highScore;
 	int direction;
 	int activeEnemiesCount = NUM_ENEMYS;
+
+	char p1Score_s[20];
+	char highScore_s[20];
+
+	bool gameOver;
+	float gameOverTimer;
 };
 #endif // !_GAME_STATE_H_
 

@@ -24,9 +24,11 @@ void Bullet::Update(float a_delta)
 
 void Bullet::Draw()
 {
-	MoveSprite(textureId, x, y);
-	DrawSprite(textureId);
-	
+	if (isActive)
+	{
+		MoveSprite(textureId, x, y);
+		DrawSprite(textureId);
+	}
 }
 
 void Bullet::InitializeBullet(float a_x, float a_y, float a_velocityX, float a_velocity_y, unsigned int a_textureId)

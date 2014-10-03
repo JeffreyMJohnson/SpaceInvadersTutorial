@@ -95,6 +95,8 @@
     <ClCompile Include="source\Enemy.cpp" />
     <ClCompile Include="source\Entity.cpp" />
     <ClCompile Include="source\GameState.cpp" />
+    <ClCompile Include="source\Highscores.cpp" />
+    <ClCompile Include="source\LeaderboardState.cpp" />
     <ClCompile Include="source\main.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">./include/;./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -108,6 +110,8 @@
     <ClInclude Include="include\Enemy.h" />
     <ClInclude Include="include\Entity.h" />
     <ClInclude Include="include\GameState.h" />
+    <ClInclude Include="include\Highscores.h" />
+    <ClInclude Include="include\LeaderboardState.h" />
     <ClInclude Include="include\MainMenuState.h" />
     <ClInclude Include="include\Player.h" />
     <ClInclude Include="include\StateMachine.h" />

@@ -34,6 +34,8 @@ GameState::~GameState()
 
 void GameState::Initialize()
 {
+	gameOver = false; 
+
 	Player* player = new Player();
 
 	player->SetSize(64.0f, 32.0f);
@@ -51,8 +53,20 @@ void GameState::Initialize()
 	MoveSprite(player->GetSpriteID(), player->GetX(), player->GetY());
 
 	bulletTexture = CreateSprite("./images/player_shot.png", 3, 20, true);
-	
+
 	CreateEnemies();
+
+	Highscores scores;
+	scores.LoadScores();
+	if (scores.IsEmpty())
+	{
+		highScore = 0;
+	}
+	else
+	{
+		scores.SortScores();
+		highScore = *scores.GetScores().begin();
+	}
 }
 
 void GameState::Destroy()
@@ -87,8 +101,7 @@ void GameState::PlayerLogic(Player* a_player, float a_delta)
 				{
 					enemyShip->SetIsActive(false);
 					a_player->bullets[i].isActive = false;
-					//a_player->AddScore(1);
-					AddScore(enemyShip->GetScoreValue());
+					score += enemyShip->GetScoreValue();
 					activeEnemiesCount--;
 				}
 			}
@@ -129,8 +142,22 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 		return;
 	}
 
+	if (gameOver)
+	{
+		gameOverTimer -= a_timestep;
+		if (gameOverTimer <= 0)
+		{
+			LeaderboardState* leaderBoard = new LeaderboardState();
+			leaderBoard->SetPlayersScore(score);
+			BaseState* lastState = a_SMPointer->SwitchState(leaderBoard);
+			delete lastState;
+		}
+		return;
+	}
+
 	//update enemies
 	bool lowerAliens = false;
+	bool allDead = true;
 
 	for (auto object : gameObjects)
 	{
@@ -144,12 +171,23 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 		if (dynamic_cast<Enemy*>(object) != 0)
 		{
 			//process enemy specific logic
-			EnemyLogic(dynamic_cast<Enemy*>(object), lowerAliens);
+			Enemy* enemy = dynamic_cast<Enemy*>(object);
+			EnemyLogic(enemy, lowerAliens);
+			if (enemy->GetIsActive())
+			{
+				allDead = false;
+			}
 		}
 
 		//update and draw objects
 		object->Update(a_timestep);
 		object->Draw();
+	}
+
+	if (allDead)
+	{
+		gameOver = true;
+		return;
 	}
 
 	//with better logic this could be put in the main object update loop 
@@ -160,6 +198,14 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 			if (dynamic_cast<Enemy*>(object) != 0)
 			{
 				Enemy* enemy = dynamic_cast<Enemy*>(object);
+
+				if (enemy->GetY() <= (0.05f * screenHeight))
+				{
+					gameOver = true;
+					gameOverTimer = 2;
+					return;
+				}
+
 				enemy->SetY(enemy->GetY() - (0.05f * screenHeight));
 			}
 		}
@@ -177,17 +223,23 @@ void GameState::Draw()
 	DrawLine(0, lineYPos, screenWidth, lineYPos, SColour(0x00, 0xFF, 0x00, 0xFF));
 
 	SetFont(invadersFont);
+	sprintf(p1Score_s, "%05d", score);
 	DrawString(player1ScoreText, screenWidth * 0.025f, screenHeight - 2);
+	DrawString(p1Score_s, screenWidth * 0.025f, screenHeight - 25);
+
+	sprintf(highScore_s, "%05d", highScore);
 	DrawString(highScoreText, (screenWidth / 2) - 90, screenHeight - 2);
+	DrawString(highScore_s, screenWidth / 2 - 60, screenHeight - 25);
+
 	DrawString(player2ScoreText, screenWidth - 150, screenHeight - 2);
-	DrawString(scoreAsString.c_str(), 35, screenHeight - 30);
-	DrawString(player2Score, screenWidth - 125, screenHeight - 30);
-	DrawString(highScore, screenWidth / 2 - 60, screenHeight - 30);
+	/*DrawString(scoreAsString.c_str(), 35, screenHeight - 30);
+	DrawString(player2Score, screenWidth - 125, screenHeight - 30);*/
+
 	DrawString(playerLives, 40, lineYPos - 2);
 	DrawString(creditText, screenWidth - 200, lineYPos - 2);
 	DrawString(credit, screenWidth - 75, lineYPos - 2);
 
-	
+
 }
 bool GameState::CheckCollision(float x1, float y1, float x2, float y2, float distance)
 {
@@ -209,7 +261,7 @@ void GameState::CreateEnemies()
 		Enemy* enemy = new Enemy();
 
 		enemy->SetSpriteId(CreateSprite("./images/invaders/invaders_1_00.png", 64, 32, true));
-		
+
 		//check if need new line of enemy
 		if (enemyX > screenWidth * 0.8f)
 		{
@@ -227,19 +279,5 @@ void GameState::CreateEnemies()
 
 		gameObjects.push_back(enemy);
 	}
-}
-
-/*
-Add a score of the given param to the player's score.
-param:
-a_score - int to add to player's score.
-*/
-void GameState::AddScore(int a_score)
-{
-	score += a_score;
-	char buff[6];
-	sprintf(buff, "%05d", score);
-	//strcpy(scoreAsString, buff);
-	scoreAsString = buff;
 }
 

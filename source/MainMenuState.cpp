@@ -4,6 +4,8 @@
 extern const int screenWidth;
 extern const int screenHeight;
 
+extern const char* invadersFont;
+
 extern const char* insertCoinsText;
 extern const char* creditText;
 
@@ -39,6 +41,7 @@ void MainMenuState::Update(float a_timeStep, StateMachine* a_SMPointer)
 
 void MainMenuState::Draw()
 {
+	SetFont(invadersFont);
 	DrawSprite(arcadeMarquee);
 	DrawString(insertCoinsText, screenWidth * 0.37f, screenHeight * 0.5f);
 	DrawString(creditText, screenWidth * 0.25f, screenHeight * 0.4f);
